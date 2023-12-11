@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "type": "module",
   "description": "",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "exports": {
     ".": {
-      "types": "./dist/packages/extension-resize-image/src/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./esm/index.js"
     }
   },
   "scripts": {
