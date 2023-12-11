@@ -1,0 +1,13 @@
+node_modules/
+package-lock.json
+tsconfig.json
+yarn.lock
+build.js
+lib/
+
+rollup.config.mjs
+*.tgz
+*.test.ts
+babel.config.json
+
+.github/

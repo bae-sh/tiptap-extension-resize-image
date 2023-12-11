@@ -1,0 +1,51 @@
+{
+  "name": "tiptap-extension-resize-image",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "",
+  "main": "dist/index.cjs",
+  "exports": {
+    ".": {
+      "types": "./dist/packages/extension-resize-image/src/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "yarn clean && yarn build:tsc && yarn build:rollup",
+    "build:tsc": "yarn tsc --declaration --emitDeclarationOnly --declarationDir dist",
+    "build:rollup": "rollup -c rollup.config.mjs",
+    "clean": "rm -rf dist esm",
+    "test": "jest"
+  },
+  "author": "bae-sh <hyeon1293@gmail.com>",
+  "directories": {
+    "lib": "lib"
+  },
+  "license": "MIT",
+  "keywords": [
+    "tiptap",
+    "tiptap extension",
+    "image",
+    "resize-image",
+    "resizable image"
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.23.6",
+    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-typescript": "^7.23.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@tiptap/core": "^2.1.13",
+    "@tiptap/extension-image": "^2.1.13",
+    "@tiptap/pm": "^2.1.13",
+    "@types/node": "^20.10.4",
+    "rollup": "^4.8.0",
+    "tslib": "^2.6.2",
+    "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "@tiptap/core": "^2.0.0",
+    "@tiptap/extension-image": "^2.0.0",
+    "@tiptap/pm": "^2.0.0"
+  }
+}
