@@ -45,7 +45,7 @@ export const ImageResize = Image.extend({
       $container.addEventListener('click', () => {
         $container.setAttribute(
           'style',
-          `position: relative; border: 1px dashed #6C6C6C; ${style}`,
+          `position: relative; border: 1px dashed #6C6C6C; ${style} cursor: pointer;`,
         );
 
         Array.from({ length: 4 }, (_, index) => {
@@ -85,7 +85,7 @@ export const ImageResize = Image.extend({
               if (typeof getPos === 'function') {
                 const newAttrs = {
                   ...node.attrs,
-                  style: `${$img.style.cssText} cursor: pointer;`,
+                  style: `${$img.style.cssText}`,
                 };
                 view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
               }
