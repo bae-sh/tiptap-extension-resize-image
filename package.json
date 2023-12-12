@@ -1,6 +1,6 @@
 {
   "name": "tiptap-extension-resize-image",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "type": "module",
   "description": "",
   "main": "dist/index.js",
@@ -19,6 +19,12 @@
     "test": "jest"
   },
   "author": "bae-sh <hyeon1293@gmail.com>",
+  "contributors": [
+    {
+      "name": "dongyounyim",
+      "email": "dyyim4725@gmail.com"
+    }
+  ],
   "directories": {
     "lib": "lib"
   },
