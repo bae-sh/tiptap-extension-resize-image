@@ -38,66 +38,80 @@ export const ImageResize = Image.extend({
         "bottom: -4px; left: -4px; cursor: nesw-resize;",
         "bottom: -4px; right: -4px; cursor: nwse-resize;",
       ];
-      $container.setAttribute(
-        "style",
-        `position: relative; border: 1px dashed #6C6C6C; ${style}`
-      );
 
       let isResizing = false;
       let startX: number, startWidth: number, startHeight: number;
 
-      Array.from({ length: 4 }, (_, index) => {
-        const $dot = document.createElement("div");
-        $dot.setAttribute(
+      $container.addEventListener("click", () => {
+        $container.setAttribute(
           "style",
-          `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+          `position: relative; border: 1px dashed #6C6C6C; ${style}`
         );
 
-        $dot.addEventListener("mousedown", (e) => {
-          e.preventDefault();
-          isResizing = true;
-          startX = e.clientX;
-          startWidth = $container.offsetWidth;
-          startHeight = $container.offsetHeight;
+        Array.from({ length: 4 }, (_, index) => {
+          const $dot = document.createElement("div");
+          $dot.setAttribute(
+            "style",
+            `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+          );
 
-          const onMouseMove = (e: MouseEvent) => {
-            if (!isResizing) return;
+          $dot.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = $container.offsetWidth;
+            startHeight = $container.offsetHeight;
 
-            const deltaX = e.clientX - startX;
+            const onMouseMove = (e: MouseEvent) => {
+              if (!isResizing) return;
 
-            const aspectRatio = startWidth / startHeight;
-            const newWidth = startWidth + deltaX;
-            const newHeight = newWidth / aspectRatio;
+              const deltaX = e.clientX - startX;
 
-            $container.style.width = newWidth + "px";
-            $container.style.height = newHeight + "px";
+              const aspectRatio = startWidth / startHeight;
+              const newWidth = startWidth + deltaX;
+              const newHeight = newWidth / aspectRatio;
 
-            $img.style.width = newWidth + "px";
-            $img.style.height = newHeight + "px";
-          };
+              $container.style.width = newWidth + "px";
+              $container.style.height = newHeight + "px";
 
-          const onMouseUp = () => {
-            if (isResizing) {
-              isResizing = false;
-            }
-            if (typeof getPos === "function") {
-              const newAttrs = {
-                ...node.attrs,
-                style: `${$img.style.cssText}`,
-              };
-              view.dispatch(
-                view.state.tr.setNodeMarkup(getPos(), null, newAttrs)
-              );
-            }
+              $img.style.width = newWidth + "px";
+              $img.style.height = newHeight + "px";
+            };
 
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-          };
+            const onMouseUp = () => {
+              if (isResizing) {
+                isResizing = false;
+              }
+              if (typeof getPos === "function") {
+                const newAttrs = {
+                  ...node.attrs,
+                  style: `${$img.style.cssText}`,
+                };
+                view.dispatch(
+                  view.state.tr.setNodeMarkup(getPos(), null, newAttrs)
+                );
+              }
 
-          document.addEventListener("mousemove", onMouseMove);
-          document.addEventListener("mouseup", onMouseUp);
+              document.removeEventListener("mousemove", onMouseMove);
+              document.removeEventListener("mouseup", onMouseUp);
+            };
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+          });
+          $container.appendChild($dot);
         });
-        $container.appendChild($dot);
+      });
+
+      document.addEventListener("click", (e: MouseEvent) => {
+        if (!$container.contains(e.target as Node)) {
+          $container.removeAttribute("style");
+          if ($container.childElementCount > 2) {
+            for (let i = 0; i < 4; i++) {
+              $container.removeChild($container.lastChild);
+            }
+          }
+        }
       });
 
       return {
