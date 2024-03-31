@@ -1,8 +1,8 @@
 {
   "name": "tiptap-extension-resize-image",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "type": "module",
-  "description": "",
+  "description": "A tiptap image resizing extension for React, Vue, Next, and VanillaJS",
   "main": "dist/index.js",
   "exports": {
     ".": {
@@ -10,6 +10,10 @@
       "require": "./dist/index.js",
       "import": "./esm/index.js"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bae-sh/tiptap-extension-resize-image"
   },
   "scripts": {
     "build": "yarn clean && yarn build:tsc && yarn build:rollup",

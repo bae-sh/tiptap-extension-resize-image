@@ -27,3 +27,7 @@ const editor = useEditor({
   content: `<img src="https://source.unsplash.com/8xznAGy4HcY/800x400" />`,
 });
 ```
+
+## Work in Progress
+
+We're currently developing image alignment functionality, allowing you to align your images left, right, or center.
