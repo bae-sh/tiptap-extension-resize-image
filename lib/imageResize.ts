@@ -43,6 +43,13 @@ export const ImageResize = Image.extend({
       let startX: number, startWidth: number, startHeight: number;
 
       $container.addEventListener('click', () => {
+        //remove remaining dots
+        if ($container.childElementCount > 2) {
+          for (let i = 0; i < 4; i++) {
+            $container.removeChild($container.lastChild as Node);
+          }
+        }
+
         $container.setAttribute(
           'style',
           `position: relative; border: 1px dashed #6C6C6C; ${style} cursor: pointer;`,
