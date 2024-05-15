@@ -1,6 +1,6 @@
 # `tiptap-extension-resize-image`
 
-![tiptap-extension-resize-image](https://github.com/bae-sh/tiptap-extension-resize-image/assets/37887690/48f47053-2ad3-4413-8b54-9a63e12e0fb5)
+![tiptap-extension-resize-image](https://github.com/bae-sh/tiptap-extension-resize-image/assets/37887690/e79f3d2a-c2df-4506-ac4a-fb71918569b4)
 
 [Tiptap](https://tiptap.dev/) is a suite of open source content editing and real-time collaboration tools for developers building apps like Notion or Google Docs.
 
