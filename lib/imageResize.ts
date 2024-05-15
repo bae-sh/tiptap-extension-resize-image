@@ -75,7 +75,10 @@ export const ImageResize = Image.extend({
 
       $positionContainer.appendChild($container);
       const justifyContent = style.match(/justify-content: (.*?);/);
-      $positionContainer.setAttribute('style', `display: flex; ${justifyContent?.[0]}`);
+      $positionContainer.setAttribute(
+        'style',
+        `display: flex; ${justifyContent ? justifyContent[0] : ''}`,
+      );
 
       $container.setAttribute('style', `${style}`);
       $container.appendChild($img);
