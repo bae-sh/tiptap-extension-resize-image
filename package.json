@@ -38,7 +38,8 @@
     "tiptap extension",
     "image",
     "resize-image",
-    "resizable image"
+    "resizable image",
+    "align image"
   ],
   "devDependencies": {
     "@babel/core": "^7.23.6",
