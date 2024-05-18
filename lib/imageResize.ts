@@ -26,6 +26,15 @@ export const ImageResize = Image.extend({
       const $img = document.createElement('img');
       const iconStyle = 'width: 24px; height: 24px; cursor: pointer;';
 
+      const dispatchNodeView = () => {
+        if (typeof getPos === 'function') {
+          const newAttrs = {
+            ...node.attrs,
+            style: `${$img.style.cssText}`,
+          };
+          view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
+        }
+      };
       const paintPositionContoller = () => {
         const $postionController = document.createElement('div');
 
@@ -56,14 +65,17 @@ export const ImageResize = Image.extend({
         $leftController.addEventListener('click', () => {
           $positionContainer.setAttribute('style', 'display: flex; justify-content: flex-start;');
           $img.setAttribute('style', `${$img.style.cssText} justify-content: flex-start;`);
+          dispatchNodeView();
         });
         $centerController.addEventListener('click', () => {
           $positionContainer.setAttribute('style', 'display: flex; justify-content: center;');
           $img.setAttribute('style', `${$img.style.cssText} justify-content: center;`);
+          dispatchNodeView();
         });
         $rightController.addEventListener('click', () => {
           $positionContainer.setAttribute('style', 'display: flex; justify-content: flex-end;');
           $img.setAttribute('style', `${$img.style.cssText} justify-content: flex-end;`);
+          dispatchNodeView();
         });
 
         $postionController.appendChild($leftController);
@@ -148,13 +160,7 @@ export const ImageResize = Image.extend({
               if (isResizing) {
                 isResizing = false;
               }
-              if (typeof getPos === 'function') {
-                const newAttrs = {
-                  ...node.attrs,
-                  style: `${$img.style.cssText}`,
-                };
-                view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
-              }
+              dispatchNodeView();
 
               document.removeEventListener('mousemove', onMouseMove);
               document.removeEventListener('mouseup', onMouseUp);
