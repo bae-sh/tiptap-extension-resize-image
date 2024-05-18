@@ -85,12 +85,17 @@ export const ImageResize = Image.extend({
         $container.appendChild($postionController);
       };
 
+      // add position style and className
       $positionContainer.appendChild($container);
       const justifyContent = style.match(/justify-content: (.*?);/);
       $positionContainer.setAttribute(
         'style',
         `display: flex; ${justifyContent ? justifyContent[0] : ''}`,
       );
+
+      if (justifyContent) {
+        $img.className = `tiptap-image-${justifyContent[1]}`;
+      }
 
       $container.setAttribute('style', `${style}`);
       $container.appendChild($img);
