@@ -11,6 +11,73 @@ export const ImageResize = Image.extend({
       },
       style: {
         default: 'width: 100%; height: auto; cursor: pointer;',
+        parseHTML: element => {
+          const width = element.getAttribute('width');
+          if (!width || isNaN(Number(width))) {
+            return;
+          }
+          return `width: ${width}px; height: auto; cursor: pointer;`;
+        },
+      },
+      title: {
+        default: null,
+      },
+      loading: {
+        default: null,
+      },
+      srcset: {
+        default: null,
+      },
+      sizes: {
+        default: null,
+      },
+      crossorigin: {
+        default: null,
+      },
+      usemap: {
+        default: null,
+      },
+      ismap: {
+        default: null,
+      },
+      width: {
+        default: null,
+      },
+      height: {
+        default: null,
+      },
+      referrerpolicy: {
+        default: null,
+      },
+      longdesc: {
+        default: null,
+      },
+      decoding: {
+        default: null,
+      },
+      class: {
+        default: null,
+      },
+      id: {
+        default: null,
+      },
+      name: {
+        default: null,
+      },
+      draggable: {
+        default: true,
+      },
+      tabindex: {
+        default: null,
+      },
+      'aria-label': {
+        default: null,
+      },
+      'aria-labelledby': {
+        default: null,
+      },
+      'aria-describedby': {
+        default: null,
       },
     };
   },
@@ -20,7 +87,7 @@ export const ImageResize = Image.extend({
         view,
         options: { editable },
       } = editor;
-      const { src, alt, style } = node.attrs;
+      const { style } = node.attrs;
       const $positionContainer = document.createElement('div');
       const $container = document.createElement('div');
       const $img = document.createElement('img');
@@ -100,10 +167,10 @@ export const ImageResize = Image.extend({
       $container.setAttribute('style', `${style}`);
       $container.appendChild($img);
 
-      $img.setAttribute('src', src);
-      $img.setAttribute('alt', alt);
-      $img.setAttribute('style', style);
-      $img.setAttribute('draggable', 'true');
+      Object.entries(node.attrs).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+        $img.setAttribute(key, value);
+      });
 
       if (!editable) return { dom: $img };
 
