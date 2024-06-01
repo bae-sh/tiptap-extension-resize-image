@@ -13,10 +13,9 @@ export const ImageResize = Image.extend({
         default: 'width: 100%; height: auto; cursor: pointer;',
         parseHTML: element => {
           const width = element.getAttribute('width');
-          if (!width || isNaN(Number(width))) {
-            return;
-          }
-          return `width: ${width}px; height: auto; cursor: pointer;`;
+          return width
+            ? `width: ${width}px; height: auto; cursor: pointer;`
+            : `${element.style.cssText}`;
         },
       },
       title: {
