@@ -87,7 +87,7 @@ export const ImageResize = Image.extend({
         options: { editable },
       } = editor;
       const { style } = node.attrs;
-      const $positionContainer = document.createElement('div');
+      const $wrapper = document.createElement('div');
       const $container = document.createElement('div');
       const $img = document.createElement('img');
       const iconStyle = 'width: 24px; height: 24px; cursor: pointer;';
@@ -129,18 +129,15 @@ export const ImageResize = Image.extend({
         $rightController.setAttribute('style', iconStyle);
 
         $leftController.addEventListener('click', () => {
-          $positionContainer.setAttribute('style', 'display: flex; justify-content: flex-start;');
-          $img.setAttribute('style', `${$img.style.cssText} justify-content: flex-start;`);
+          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto 0 0;`);
           dispatchNodeView();
         });
         $centerController.addEventListener('click', () => {
-          $positionContainer.setAttribute('style', 'display: flex; justify-content: center;');
-          $img.setAttribute('style', `${$img.style.cssText} justify-content: center;`);
+          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto;`);
           dispatchNodeView();
         });
         $rightController.addEventListener('click', () => {
-          $positionContainer.setAttribute('style', 'display: flex; justify-content: flex-end;');
-          $img.setAttribute('style', `${$img.style.cssText} justify-content: flex-end;`);
+          $img.setAttribute('style', `${$img.style.cssText} margin: 0 0 0 auto;`);
           dispatchNodeView();
         });
 
@@ -151,17 +148,8 @@ export const ImageResize = Image.extend({
         $container.appendChild($postionController);
       };
 
-      // add position style and className
-      $positionContainer.appendChild($container);
-      const justifyContent = style.match(/justify-content: (.*?);/);
-      $positionContainer.setAttribute(
-        'style',
-        `display: flex; ${justifyContent ? justifyContent[0] : ''}`,
-      );
-
-      if (justifyContent) {
-        $img.className = `tiptap-image-${justifyContent[1]}`;
-      }
+      $wrapper.setAttribute('style', `display: flex;`);
+      $wrapper.appendChild($container);
 
       $container.setAttribute('style', `${style}`);
       $container.appendChild($img);
@@ -262,7 +250,7 @@ export const ImageResize = Image.extend({
       });
 
       return {
-        dom: $positionContainer,
+        dom: $wrapper,
       };
     };
   },
