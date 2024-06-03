@@ -1,6 +1,6 @@
 {
   "name": "tiptap-extension-resize-image",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "type": "module",
   "description": "A tiptap image resizing extension for React, Vue, Next, and VanillaJS. Additionally, it can align the image position.",
   "main": "dist/index.js",
