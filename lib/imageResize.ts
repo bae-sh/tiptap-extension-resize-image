@@ -186,7 +186,7 @@ export const ImageResize = Image.extend({
       ];
 
       let isResizing = false;
-      let startX: number, startWidth: number, startHeight: number;
+      let startX: number, startWidth: number;
 
       $container.addEventListener('click', () => {
         //remove remaining dots and position controller
@@ -215,21 +215,16 @@ export const ImageResize = Image.extend({
             isResizing = true;
             startX = e.clientX;
             startWidth = $container.offsetWidth;
-            startHeight = $container.offsetHeight;
 
             const onMouseMove = (e: MouseEvent) => {
               if (!isResizing) return;
               const deltaX = index % 2 === 0 ? -(e.clientX - startX) : e.clientX - startX;
 
-              const aspectRatio = startWidth / startHeight;
               const newWidth = startWidth + deltaX;
-              const newHeight = newWidth / aspectRatio;
 
               $container.style.width = newWidth + 'px';
-              $container.style.height = newHeight + 'px';
 
               $img.style.width = newWidth + 'px';
-              $img.style.height = newHeight + 'px';
             };
 
             const onMouseUp = () => {
