@@ -11,7 +11,7 @@ export const ImageResize = Image.extend({
       },
       style: {
         default: 'width: 100%; height: auto; cursor: pointer;',
-        parseHTML: element => {
+        parseHTML: (element) => {
           const width = element.getAttribute('width');
           return width
             ? `width: ${width}px; height: auto; cursor: pointer;`
@@ -108,22 +108,22 @@ export const ImageResize = Image.extend({
         const $centerController = document.createElement('img');
         const $rightController = document.createElement('img');
 
-        const controllerMouseOver = e => {
+        const controllerMouseOver = (e) => {
           e.target.style.opacity = 0.3;
         };
 
-        const controllerMouseOut = e => {
+        const controllerMouseOut = (e) => {
           e.target.style.opacity = 1;
         };
 
         $postionController.setAttribute(
           'style',
-          'position: absolute; top: 0%; left: 50%; width: 100px; height: 25px; z-index: 999; background-color: rgba(255, 255, 255, 0.7); border-radius: 4px; border: 2px solid #6C6C6C; cursor: pointer; transform: translate(-50%, -50%); display: flex; justify-content: space-between; align-items: center; padding: 0 10px;',
+          'position: absolute; top: 0%; left: 50%; width: 100px; height: 25px; z-index: 999; background-color: rgba(255, 255, 255, 0.7); border-radius: 4px; border: 2px solid #6C6C6C; cursor: pointer; transform: translate(-50%, -50%); display: flex; justify-content: space-between; align-items: center; padding: 0 10px;'
         );
 
         $leftController.setAttribute(
           'src',
-          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_left/default/20px.svg',
+          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_left/default/20px.svg'
         );
         $leftController.setAttribute('style', iconStyle);
         $leftController.addEventListener('mouseover', controllerMouseOver);
@@ -131,7 +131,7 @@ export const ImageResize = Image.extend({
 
         $centerController.setAttribute(
           'src',
-          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg',
+          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg'
         );
         $centerController.setAttribute('style', iconStyle);
         $centerController.addEventListener('mouseover', controllerMouseOver);
@@ -139,7 +139,7 @@ export const ImageResize = Image.extend({
 
         $rightController.setAttribute(
           'src',
-          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_right/default/20px.svg',
+          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_right/default/20px.svg'
         );
         $rightController.setAttribute('style', iconStyle);
         $rightController.addEventListener('mouseover', controllerMouseOver);
@@ -200,17 +200,17 @@ export const ImageResize = Image.extend({
 
         $container.setAttribute(
           'style',
-          `position: relative; border: 1px dashed #6C6C6C; ${style} cursor: pointer;`,
+          `position: relative; border: 1px dashed #6C6C6C; ${style} cursor: pointer;`
         );
 
         Array.from({ length: 4 }, (_, index) => {
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`,
+            `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
-          $dot.addEventListener('mousedown', e => {
+          $dot.addEventListener('mousedown', (e) => {
             e.preventDefault();
             isResizing = true;
             startX = e.clientX;
