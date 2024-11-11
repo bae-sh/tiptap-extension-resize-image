@@ -146,10 +146,7 @@ export const ImageResize = Image.extend({
         $rightController.addEventListener('mouseout', controllerMouseOut);
 
         $leftController.addEventListener('click', () => {
-          $img.setAttribute(
-            'style',
-            `${$img.style.cssText} margin: 0 auto 0 0;`,
-          );
+          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto 0 0;`);
           dispatchNodeView();
         });
         $centerController.addEventListener('click', () => {
@@ -157,10 +154,7 @@ export const ImageResize = Image.extend({
           dispatchNodeView();
         });
         $rightController.addEventListener('click', () => {
-          $img.setAttribute(
-            'style',
-            `${$img.style.cssText} margin: 0 0 0 auto;`,
-          );
+          $img.setAttribute('style', `${$img.style.cssText} margin: 0 0 0 auto;`);
           dispatchNodeView();
         });
 
@@ -183,13 +177,12 @@ export const ImageResize = Image.extend({
       });
 
       if (!editable) return { dom: $img };
-      const isMobile = document.documentElement.clientWidth < 768;
-      const dotPosition = isMobile ? '-8px' : '-4px';
+
       const dotsPosition = [
-        `top: ${dotPosition}; left: ${dotPosition}; cursor: nwse-resize;`,
-        `top: ${dotPosition}; right: ${dotPosition}; cursor: nesw-resize;`,
-        `bottom: ${dotPosition}; left: ${dotPosition}; cursor: nesw-resize;`,
-        `bottom: ${dotPosition}; right: ${dotPosition}; cursor: nwse-resize;`,
+        'top: -4px; left: -4px; cursor: nwse-resize;',
+        'top: -4px; right: -4px; cursor: nesw-resize;',
+        'bottom: -4px; left: -4px; cursor: nesw-resize;',
+        'bottom: -4px; right: -4px; cursor: nwse-resize;',
       ];
 
       let isResizing = false;
@@ -198,10 +191,7 @@ export const ImageResize = Image.extend({
       $container.addEventListener('click', (e) => {
         //remove remaining dots and position controller
         const isMobile = document.documentElement.clientWidth < 768;
-        isMobile &&
-          (
-            document.querySelector('.ProseMirror-focused') as HTMLElement
-          )?.blur();
+        isMobile && (document.querySelector('.ProseMirror-focused') as HTMLElement)?.blur();
 
         if ($container.childElementCount > 3) {
           for (let i = 0; i < 5; i++) {
@@ -220,7 +210,7 @@ export const ImageResize = Image.extend({
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: ${isMobile ? 16 : 10}px; height: ${isMobile ? 16 : 10}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`,
+            `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
           $dot.addEventListener('mousedown', (e) => {
@@ -231,8 +221,7 @@ export const ImageResize = Image.extend({
 
             const onMouseMove = (e: MouseEvent) => {
               if (!isResizing) return;
-              const deltaX =
-                index % 2 === 0 ? -(e.clientX - startX) : e.clientX - startX;
+              const deltaX = index % 2 === 0 ? -(e.clientX - startX) : e.clientX - startX;
 
               const newWidth = startWidth + deltaX;
 
@@ -290,7 +279,7 @@ export const ImageResize = Image.extend({
               document.addEventListener('touchmove', onTouchMove);
               document.addEventListener('touchend', onTouchEnd);
             },
-            { passive: false },
+            { passive: false }
           );
           $container.appendChild($dot);
         });
@@ -298,15 +287,11 @@ export const ImageResize = Image.extend({
 
       document.addEventListener('click', (e: MouseEvent) => {
         const $target = e.target as HTMLElement;
-        const isClickInside =
-          $container.contains($target) || $target.style.cssText === iconStyle;
+        const isClickInside = $container.contains($target) || $target.style.cssText === iconStyle;
 
         if (!isClickInside) {
           const containerStyle = $container.getAttribute('style');
-          const newStyle = containerStyle?.replace(
-            'border: 1px dashed #6C6C6C;',
-            '',
-          );
+          const newStyle = containerStyle?.replace('border: 1px dashed #6C6C6C;', '');
           $container.setAttribute('style', newStyle as string);
 
           if ($container.childElementCount > 3) {
