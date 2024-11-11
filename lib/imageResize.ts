@@ -188,7 +188,7 @@ export const ImageResize = Image.extend({
       let isResizing = false;
       let startX: number, startWidth: number;
 
-      $container.addEventListener('click', (e) => {
+      $container.addEventListener('click', () => {
         //remove remaining dots and position controller
         const isMobile = document.documentElement.clientWidth < 768;
         isMobile && (document.querySelector('.ProseMirror-focused') as HTMLElement)?.blur();
