@@ -211,7 +211,7 @@ export const ImageResize = Image.extend({
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: ${isMobile ? 16 : 10}px; height: ${isMobile ? 16 : 10}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+            `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${isMobile ? 16 : 9}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
           $dot.addEventListener('mousedown', (e) => {
