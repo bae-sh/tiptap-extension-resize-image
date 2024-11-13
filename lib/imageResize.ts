@@ -177,18 +177,19 @@ export const ImageResize = Image.extend({
       });
 
       if (!editable) return { dom: $img };
-
+      const isMobile = document.documentElement.clientWidth < 768;
+      const dotPosition = isMobile ? '-8px' : '-4px';
       const dotsPosition = [
-        'top: -4px; left: -4px; cursor: nwse-resize;',
-        'top: -4px; right: -4px; cursor: nesw-resize;',
-        'bottom: -4px; left: -4px; cursor: nesw-resize;',
-        'bottom: -4px; right: -4px; cursor: nwse-resize;',
+        `top: ${dotPosition}; left: ${dotPosition}; cursor: nwse-resize;`,
+        `top: ${dotPosition}; right: ${dotPosition}; cursor: nesw-resize;`,
+        `bottom: ${dotPosition}; left: ${dotPosition}; cursor: nesw-resize;`,
+        `bottom: ${dotPosition}; right: ${dotPosition}; cursor: nwse-resize;`,
       ];
 
       let isResizing = false;
       let startX: number, startWidth: number;
 
-      $container.addEventListener('click', () => {
+      $container.addEventListener('click', (e) => {
         //remove remaining dots and position controller
         const isMobile = document.documentElement.clientWidth < 768;
         isMobile && (document.querySelector('.ProseMirror-focused') as HTMLElement)?.blur();
@@ -210,7 +211,7 @@ export const ImageResize = Image.extend({
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: 9px; height: 9px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+            `position: absolute; width: ${isMobile ? 16 : 10}px; height: ${isMobile ? 16 : 10}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
           $dot.addEventListener('mousedown', (e) => {
