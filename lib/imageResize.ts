@@ -111,7 +111,7 @@ export const ImageResize = Image.extend({
         $img.setAttribute(key, value);
       });
 
-      if (!editable) return { dom: $img };
+      if (!editable) return { dom: $container };
       const isMobile = document.documentElement.clientWidth < 768;
       const dotPosition = isMobile ? '-8px' : '-4px';
       const dotsPosition = [
