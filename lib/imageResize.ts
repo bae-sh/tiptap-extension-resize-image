@@ -22,74 +22,65 @@ export const ImageResize = Image.extend({
         options: { editable },
       } = editor;
       const { style } = node.attrs;
+
       const $wrapper = document.createElement('div');
       const $container = document.createElement('div');
       const $img = document.createElement('img');
+
       const iconStyle = 'width: 24px; height: 24px; cursor: pointer;';
 
       const dispatchNodeView = () => {
         if (typeof getPos === 'function') {
-          const newAttrs = {
-            ...node.attrs,
-            style: `${$img.style.cssText}`,
-          };
+          const newAttrs = { ...node.attrs, style: `${$img.style.cssText}` };
           view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
         }
       };
+
       const paintPositionContoller = () => {
         const $postionController = document.createElement('div');
 
-        const $leftController = document.createElement('img');
-        const $centerController = document.createElement('img');
-        const $rightController = document.createElement('img');
-
-        const controllerMouseOver = (e) => {
-          e.target.style.opacity = 0.3;
-        };
-
-        const controllerMouseOut = (e) => {
-          e.target.style.opacity = 1;
-        };
+        // Добавляем кастомный класс
+        $postionController.classList.add('image-resize-controls');
 
         $postionController.setAttribute(
           'style',
           'position: absolute; top: 0%; left: 50%; width: 100px; height: 25px; z-index: 999; background-color: rgba(255, 255, 255, 0.7); border-radius: 4px; border: 2px solid #6C6C6C; cursor: pointer; transform: translate(-50%, -50%); display: flex; justify-content: space-between; align-items: center; padding: 0 10px;'
         );
 
-        $leftController.setAttribute(
-          'src',
+        const createIcon = (src: string) => {
+          const icon = document.createElement('img');
+          icon.src = src;
+          icon.setAttribute('style', iconStyle);
+          icon.classList.add('image-resize-icon'); // кастомный класс для иконок
+          icon.addEventListener('mouseover', (e) => {
+            (e.target as HTMLElement).style.opacity = '0.3';
+          });
+          icon.addEventListener('mouseout', (e) => {
+            (e.target as HTMLElement).style.opacity = '1';
+          });
+          return icon;
+        };
+
+        const $leftController = createIcon(
           'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_left/default/20px.svg'
         );
-        $leftController.setAttribute('style', iconStyle);
-        $leftController.addEventListener('mouseover', controllerMouseOver);
-        $leftController.addEventListener('mouseout', controllerMouseOut);
-
-        $centerController.setAttribute(
-          'src',
+        const $centerController = createIcon(
           'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg'
         );
-        $centerController.setAttribute('style', iconStyle);
-        $centerController.addEventListener('mouseover', controllerMouseOver);
-        $centerController.addEventListener('mouseout', controllerMouseOut);
-
-        $rightController.setAttribute(
-          'src',
+        const $rightController = createIcon(
           'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_right/default/20px.svg'
         );
-        $rightController.setAttribute('style', iconStyle);
-        $rightController.addEventListener('mouseover', controllerMouseOver);
-        $rightController.addEventListener('mouseout', controllerMouseOut);
 
         $leftController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto 0 0;`);
+          $img.style.margin = '0 auto 0 0';
           dispatchNodeView();
         });
         $centerController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto;`);
+          $img.style.margin = '0 auto';
           dispatchNodeView();
         });
         $rightController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 0 0 auto;`);
+          $img.style.margin = '0 0 0 auto';
           dispatchNodeView();
         });
 
@@ -100,7 +91,7 @@ export const ImageResize = Image.extend({
         $container.appendChild($postionController);
       };
 
-      $wrapper.setAttribute('style', `display: flex;`);
+      $wrapper.style.display = 'flex';
       $wrapper.appendChild($container);
 
       $container.setAttribute('style', `${style}`);
@@ -108,10 +99,13 @@ export const ImageResize = Image.extend({
 
       Object.entries(node.attrs).forEach(([key, value]) => {
         if (value === undefined || value === null) return;
-        $img.setAttribute(key, value);
+        if (typeof value === 'string') {
+          $img.setAttribute(key, value);
+        }
       });
 
       if (!editable) return { dom: $container };
+
       const isMobile = document.documentElement.clientWidth < 768;
       const dotPosition = isMobile ? '-8px' : '-4px';
       const dotsPosition = [
@@ -144,6 +138,7 @@ export const ImageResize = Image.extend({
 
         Array.from({ length: 4 }, (_, index) => {
           const $dot = document.createElement('div');
+          $dot.classList.add('image-resize-dot'); // класс для точек ресайза
           $dot.setAttribute(
             'style',
             `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${isMobile ? 16 : 9}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
