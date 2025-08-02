@@ -1,17 +1,28 @@
 import Image from '@tiptap/extension-image';
 
 export const ImageResize = Image.extend({
-  addAttributes() {
+  name: 'imageResize',
+  addOptions() {
     return {
       ...this.parent?.(),
-      style: {
-        default: 'width: 100%; height: auto; cursor: pointer;',
+      inline: false,
+    };
+  },
+  addAttributes() {
+    const inline = this.options.inline;
+    return {
+      ...this.parent?.(),
+      containerStyle: {
+        default: `width: 100%; height: auto; cursor: pointer; ${inline ? 'display: inline-block;' : ''}`,
         parseHTML: (element) => {
           const width = element.getAttribute('width');
           return width
-            ? `width: ${width}px; height: auto; cursor: pointer;`
+            ? `width: ${width}px; height: auto; cursor: pointer; ${inline ? 'display: inline-block;' : ''}`
             : `${element.style.cssText}`;
         },
+      },
+      wrapperStyle: {
+        default: `${inline ? 'display: inline-block; float: left; padding-right: 8px;' : 'display: flex'}`,
       },
     };
   },
@@ -21,17 +32,28 @@ export const ImageResize = Image.extend({
         view,
         options: { editable },
       } = editor;
-      const { style } = node.attrs;
+      const { wrapperStyle, containerStyle } = node.attrs;
+      const inline = this.options.inline;
       const $wrapper = document.createElement('div');
       const $container = document.createElement('div');
       const $img = document.createElement('img');
       const iconStyle = 'width: 24px; height: 24px; cursor: pointer;';
 
+      const clearContainerBorder = () => {
+        const containerStyle = $container.getAttribute('style');
+        const newStyle = containerStyle
+          ?.replace('border: 1px dashed #6C6C6C;', '')
+          .replace('border: 1px dashed rgb(108, 108, 108)', '');
+        $container.setAttribute('style', newStyle as string);
+      };
+
       const dispatchNodeView = () => {
         if (typeof getPos === 'function') {
+          clearContainerBorder();
           const newAttrs = {
             ...node.attrs,
-            style: `${$img.style.cssText}`,
+            containerStyle: `${$container.style.cssText}`,
+            wrapperStyle: `${$wrapper.style.cssText}`, // Preserve wrapper style
           };
           view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
         }
@@ -44,7 +66,7 @@ export const ImageResize = Image.extend({
         const $rightController = document.createElement('img');
 
         const controllerMouseOver = (e) => {
-          e.target.style.opacity = 0.3;
+          e.target.style.opacity = 0.6;
         };
 
         const controllerMouseOut = (e) => {
@@ -53,7 +75,18 @@ export const ImageResize = Image.extend({
 
         $postionController.setAttribute(
           'style',
-          'position: absolute; top: 0%; left: 50%; width: 100px; height: 25px; z-index: 999; background-color: rgba(255, 255, 255, 0.7); border-radius: 4px; border: 2px solid #6C6C6C; cursor: pointer; transform: translate(-50%, -50%); display: flex; justify-content: space-between; align-items: center; padding: 0 10px;'
+          `position: absolute; top: 0%; left: 50%; 
+            width: ${inline ? '66px' : '100px'}; height: 25px; 
+            z-index: 999; 
+            background-color: rgba(255, 255, 255, 1); 
+            border-radius: 3px; 
+            border: 1px solid #6C6C6C; 
+            cursor: pointer; 
+            transform: translate(-50%, -50%); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 6px;`
         );
 
         $leftController.setAttribute(
@@ -63,14 +96,37 @@ export const ImageResize = Image.extend({
         $leftController.setAttribute('style', iconStyle);
         $leftController.addEventListener('mouseover', controllerMouseOver);
         $leftController.addEventListener('mouseout', controllerMouseOut);
+        $leftController.addEventListener('click', () => {
+          if (!inline) {
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 auto 0 0;`);
+          } else {
+            $wrapper.setAttribute(
+              'style',
+              `display: inline-block; float: left; padding-right: 8px;`
+            );
+            $container.setAttribute(
+              'style',
+              `display: inline-block; float: left; padding-right: 8px;`
+            );
+          }
+          dispatchNodeView();
+        });
+        $postionController.appendChild($leftController);
 
-        $centerController.setAttribute(
-          'src',
-          'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg'
-        );
-        $centerController.setAttribute('style', iconStyle);
-        $centerController.addEventListener('mouseover', controllerMouseOver);
-        $centerController.addEventListener('mouseout', controllerMouseOut);
+        if (!inline) {
+          $centerController.setAttribute(
+            'src',
+            'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg'
+          );
+          $centerController.setAttribute('style', iconStyle);
+          $centerController.addEventListener('mouseover', controllerMouseOver);
+          $centerController.addEventListener('mouseout', controllerMouseOut);
+          $centerController.addEventListener('click', () => {
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 auto;`);
+            dispatchNodeView();
+          });
+          $postionController.appendChild($centerController);
+        }
 
         $rightController.setAttribute(
           'src',
@@ -79,36 +135,42 @@ export const ImageResize = Image.extend({
         $rightController.setAttribute('style', iconStyle);
         $rightController.addEventListener('mouseover', controllerMouseOver);
         $rightController.addEventListener('mouseout', controllerMouseOut);
-
-        $leftController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto 0 0;`);
-          dispatchNodeView();
-        });
-        $centerController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 auto;`);
-          dispatchNodeView();
-        });
         $rightController.addEventListener('click', () => {
-          $img.setAttribute('style', `${$img.style.cssText} margin: 0 0 0 auto;`);
+          if (!inline) {
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 0 0 auto;`);
+          } else {
+            $wrapper.setAttribute(
+              'style',
+              `display: inline-block; float: right; padding-left: 8px;`
+            );
+            $container.setAttribute(
+              'style',
+              `display: inline-block; float: right; padding-left: 8px;`
+            );
+          }
           dispatchNodeView();
         });
-
-        $postionController.appendChild($leftController);
-        $postionController.appendChild($centerController);
         $postionController.appendChild($rightController);
-
         $container.appendChild($postionController);
       };
 
-      $wrapper.setAttribute('style', `display: flex;`);
+      $wrapper.setAttribute('style', wrapperStyle);
       $wrapper.appendChild($container);
 
-      $container.setAttribute('style', `${style}`);
+      $container.setAttribute('style', `${containerStyle}`);
       $container.appendChild($img);
 
       Object.entries(node.attrs).forEach(([key, value]) => {
-        if (value === undefined || value === null) return;
-        $img.setAttribute(key, value);
+        if (value === undefined || value === null || key === 'wrapperStyle') return;
+
+        if (key === 'containerStyle') {
+          const width = (value as string).match(/width:\s*([0-9.]+)px/);
+          if (width) {
+            $img.setAttribute('width', width[1]);
+          }
+          return;
+        }
+        $img.setAttribute(key, value as string);
       });
 
       if (!editable) return { dom: $container };
@@ -139,14 +201,16 @@ export const ImageResize = Image.extend({
 
         $container.setAttribute(
           'style',
-          `position: relative; border: 1px dashed #6C6C6C; ${style} cursor: pointer;`
+          `position: relative; border: 1px dashed #6C6C6C; ${containerStyle}`
         );
 
         Array.from({ length: 4 }, (_, index) => {
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${isMobile ? 16 : 9}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+            `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${
+              isMobile ? 16 : 9
+            }px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
           $dot.addEventListener('mousedown', (e) => {
@@ -226,9 +290,7 @@ export const ImageResize = Image.extend({
         const isClickInside = $container.contains($target) || $target.style.cssText === iconStyle;
 
         if (!isClickInside) {
-          const containerStyle = $container.getAttribute('style');
-          const newStyle = containerStyle?.replace('border: 1px dashed #6C6C6C;', '');
-          $container.setAttribute('style', newStyle as string);
+          clearContainerBorder();
 
           if ($container.childElementCount > 3) {
             for (let i = 0; i < 5; i++) {
