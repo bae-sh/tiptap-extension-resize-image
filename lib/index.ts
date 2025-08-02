@@ -1,5 +1,5 @@
-import { ImageResize } from './imageResize';
+import { ImageResize } from './image-resize';
 
-export * from './imageResize';
+export * from './image-resize';
 
 export default ImageResize;
