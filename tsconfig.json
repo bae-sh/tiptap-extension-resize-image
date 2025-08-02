@@ -5,14 +5,15 @@
     "jsx": "react",
     "lib": ["es5", "es6", "dom"],
     "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./dist",
     "outDir": "./dist",
+    "rootDir": "./lib",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "node",
-    "declarationMap": true,
-    "composite": true
+    "moduleResolution": "node"
   },
   "include": ["./lib/**/*.ts", "./lib/**/*.tsx"]
 }
