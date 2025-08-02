@@ -26,3 +26,19 @@ const editor = useEditor({
   content: `<img src="https://source.unsplash.com/8xznAGy4HcY/800x400" />`,
 });
 ```
+
+### Use as inline
+
+If you want to render images as inline elements, you can configure the extension like this:
+
+```javascript
+const editor = useEditor({
+  extensions: [
+    StarterKit,
+    ImageResize.configure({
+      inline: true,
+    }),
+  ],
+  content: `<img src="..."/>`,
+});
+```
