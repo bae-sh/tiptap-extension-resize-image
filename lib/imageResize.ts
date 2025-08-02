@@ -1,31 +1,28 @@
 import Image from '@tiptap/extension-image';
 
 export const ImageResize = Image.extend({
-  name: "imageResize",
+  name: 'imageResize',
   addOptions() {
     return {
       ...this.parent?.(),
       inline: false,
-    }
+    };
   },
   addAttributes() {
     const inline = this.options.inline;
     return {
       ...this.parent?.(),
-      style: {
-        default: 'width: 100%; height: auto; cursor: pointer;',
+      containerStyle: {
+        default: `width: 100%; height: auto; cursor: pointer; ${inline ? 'display: inline-block;' : ''}`,
         parseHTML: (element) => {
           const width = element.getAttribute('width');
           return width
-            ? `width: ${width}px; height: auto; cursor: pointer;`
+            ? `width: ${width}px; height: auto; cursor: pointer; ${inline ? 'display: inline-block;' : ''}`
             : `${element.style.cssText}`;
         },
       },
       wrapperStyle: {
-        default: `display: ${inline ? "inline-block" : "flex"};`, // Default style for the wrapper
-      },
-      containerStyle: {
-        default: `display: inline-block;`, // Default style for the container
+        default: `${inline ? 'display: inline-block; float: left; padding-right: 8px;' : 'display: flex'}`,
       },
     };
   },
@@ -37,7 +34,6 @@ export const ImageResize = Image.extend({
       } = editor;
       const { wrapperStyle, containerStyle } = node.attrs;
       const inline = this.options.inline;
-      const display = inline ? 'inline-block' : 'block';
       const $wrapper = document.createElement('div');
       const $container = document.createElement('div');
       const $img = document.createElement('img');
@@ -56,9 +52,8 @@ export const ImageResize = Image.extend({
           clearContainerBorder();
           const newAttrs = {
             ...node.attrs,
-            style: `${$img.style.cssText}`,
+            containerStyle: `${$container.style.cssText}`,
             wrapperStyle: `${$wrapper.style.cssText}`, // Preserve wrapper style
-            containerStyle: `${$container.style.cssText}`, // Preserve container style
           };
           view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
         }
@@ -103,11 +98,15 @@ export const ImageResize = Image.extend({
         $leftController.addEventListener('mouseout', controllerMouseOut);
         $leftController.addEventListener('click', () => {
           if (!inline) {
-            $container.setAttribute('style', `display: inline-block; margin: 0 auto 0 0;`);
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 auto 0 0;`);
           } else {
             $wrapper.setAttribute(
               'style',
-              `display: ${display}; float: left; padding-right: 8px;`
+              `display: inline-block; float: left; padding-right: 8px;`
+            );
+            $container.setAttribute(
+              'style',
+              `display: inline-block; float: left; padding-right: 8px;`
             );
           }
           dispatchNodeView();
@@ -123,7 +122,7 @@ export const ImageResize = Image.extend({
           $centerController.addEventListener('mouseover', controllerMouseOver);
           $centerController.addEventListener('mouseout', controllerMouseOut);
           $centerController.addEventListener('click', () => {
-            $container.setAttribute('style', `display: inline-block; margin: 0 auto;`);
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 auto;`);
             dispatchNodeView();
           });
           $postionController.appendChild($centerController);
@@ -138,11 +137,15 @@ export const ImageResize = Image.extend({
         $rightController.addEventListener('mouseout', controllerMouseOut);
         $rightController.addEventListener('click', () => {
           if (!inline) {
-            $container.setAttribute('style', `display: ${display}; margin: 0 0 0 auto;`);
+            $container.setAttribute('style', `${$container.style.cssText} margin: 0 0 0 auto;`);
           } else {
             $wrapper.setAttribute(
               'style',
-              `display: ${display}; float: right; padding-left: 8px;`
+              `display: inline-block; float: right; padding-left: 8px;`
+            );
+            $container.setAttribute(
+              'style',
+              `display: inline-block; float: right; padding-left: 8px;`
             );
           }
           dispatchNodeView();
@@ -158,14 +161,16 @@ export const ImageResize = Image.extend({
       $container.appendChild($img);
 
       Object.entries(node.attrs).forEach(([key, value]) => {
-        if (
-          value === undefined ||
-          value === null ||
-          key === 'wrapperStyle' ||
-          key === 'containerStyle'
-        )
+        if (value === undefined || value === null || key === 'wrapperStyle') return;
+
+        if (key === 'containerStyle') {
+          const width = (value as string).match(/width:\s*([0-9.]+)px/);
+          if (width) {
+            $img.setAttribute('width', width[1]);
+          }
           return;
-        $img.setAttribute(key, value);
+        }
+        $img.setAttribute(key, value as string);
       });
 
       if (!editable) return { dom: $container };
@@ -196,14 +201,16 @@ export const ImageResize = Image.extend({
 
         $container.setAttribute(
           'style',
-          `position: relative; border: 1px dashed #6C6C6C; ${containerStyle} cursor: pointer;`
+          `position: relative; border: 1px dashed #6C6C6C; ${containerStyle}`
         );
 
         Array.from({ length: 4 }, (_, index) => {
           const $dot = document.createElement('div');
           $dot.setAttribute(
             'style',
-            `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${isMobile ? 16 : 9}px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
+            `position: absolute; width: ${isMobile ? 16 : 9}px; height: ${
+              isMobile ? 16 : 9
+            }px; border: 1.5px solid #6C6C6C; border-radius: 50%; ${dotsPosition[index]}`
           );
 
           $dot.addEventListener('mousedown', (e) => {
@@ -298,5 +305,4 @@ export const ImageResize = Image.extend({
       };
     };
   },
-
 });
