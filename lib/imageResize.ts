@@ -65,12 +65,12 @@ export const ImageResize = Image.extend({
         const $centerController = document.createElement('img');
         const $rightController = document.createElement('img');
 
-        const controllerMouseOver = (e) => {
-          e.target.style.opacity = 0.6;
+        const controllerMouseOver = (e: MouseEvent) => {
+          (e.target as HTMLElement).style.opacity = '0.6';
         };
 
-        const controllerMouseOut = (e) => {
-          e.target.style.opacity = 1;
+        const controllerMouseOut = (e: MouseEvent) => {
+          (e.target as HTMLElement).style.opacity = '1';
         };
 
         $postionController.setAttribute(

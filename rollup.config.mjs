@@ -9,11 +9,14 @@ export default [
         dir: './dist',
         format: 'cjs',
         sourcemap: true,
+        exports: 'auto',
       },
     ],
+    external: ['@tiptap/core', '@tiptap/extension-image', '@tiptap/pm', 'tslib'],
     plugins: [
       typescript({
         tslib,
+        tsconfig: './tsconfig.json',
       }),
     ],
   },
@@ -24,13 +27,20 @@ export default [
         dir: './esm',
         format: 'esm',
         sourcemap: true,
+        exports: 'auto',
       },
     ],
+    external: ['@tiptap/core', '@tiptap/extension-image', '@tiptap/pm', 'tslib'],
     plugins: [
       typescript({
-        outDir: './esm',
-        declaration: false,
         tslib,
+        tsconfig: './tsconfig.json',
+        compilerOptions: {
+          outDir: './esm',
+          composite: false,
+          declaration: false,
+          declarationMap: false,
+        },
       }),
     ],
   },
