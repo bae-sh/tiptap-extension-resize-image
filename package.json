@@ -16,10 +16,10 @@
     "url": "https://github.com/bae-sh/tiptap-extension-resize-image"
   },
   "scripts": {
-    "build": "yarn build:tsc && yarn build:rollup",
+    "build": "yarn clean && yarn build:tsc && yarn build:rollup",
     "build:tsc": "yarn tsc --declaration --emitDeclarationOnly --declarationDir dist",
     "build:rollup": "rollup -c rollup.config.mjs",
-    "clean": "del /f /q dist esm && rmdir /s /q dist esm",
+    "clean": "rm -rf dist esm",
     "test": "jest"
   },
   "author": "bae-sh <hyeon1293@gmail.com>",
