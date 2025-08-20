@@ -41,6 +41,9 @@ export class ImageNodeView {
       this.clearContainerBorder();
       const newAttrs = {
         ...this.context.node.attrs,
+        width:
+          AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText) ??
+          this.context.node.attrs.width,
         containerStyle: `${this.elements.container.style.cssText}`,
         wrapperStyle: `${this.elements.wrapper.style.cssText}`,
       };

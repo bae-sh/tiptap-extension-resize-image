@@ -19,6 +19,12 @@ export const ImageResize = Image.extend({
       containerStyle: {
         default: StyleManager.getContainerStyle(inline),
         parseHTML: (element) => {
+          const containerStyle =
+            element.getAttribute('containerstyle') || element.getAttribute('style');
+          if (containerStyle) {
+            return containerStyle;
+          }
+
           const width = element.getAttribute('width');
           return width
             ? StyleManager.getContainerStyle(inline, `${width}px`)
