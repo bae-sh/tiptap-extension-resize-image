@@ -17,10 +17,9 @@ export const ImageResize = Image.extend({
     return {
       ...this.parent?.(),
       containerStyle: {
-        default: StyleManager.getContainerStyle(inline),
+        default: null,
         parseHTML: (element) => {
-          const containerStyle =
-            element.getAttribute('containerstyle') || element.getAttribute('style');
+          const containerStyle = element.getAttribute('containerstyle');
           if (containerStyle) {
             return containerStyle;
           }
