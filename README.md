@@ -1,5 +1,10 @@
 # `tiptap-extension-resize-image`
 
+[![npm version](https://img.shields.io/npm/v/tiptap-extension-resize-image.svg)](https://www.npmjs.com/package/tiptap-extension-resize-image)
+[![npm downloads](https://img.shields.io/npm/dm/tiptap-extension-resize-image.svg)](https://www.npmjs.com/package/tiptap-extension-resize-image)
+[![license](https://img.shields.io/npm/l/tiptap-extension-resize-image.svg)](https://github.com/bae-sh/tiptap-extension-resize-image/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/bae-sh/tiptap-extension-resize-image.svg?style=social)](https://github.com/bae-sh/tiptap-extension-resize-image)
+
 ![tiptap-extension-resize-image](https://github.com/bae-sh/tiptap-extension-resize-image/assets/37887690/e79f3d2a-c2df-4506-ac4a-fb71918569b4)
 
 [Tiptap](https://tiptap.dev/) is a suite of open source content editing and real-time collaboration tools for developers building apps like Notion or Google Docs.
@@ -49,3 +54,7 @@ const editor = useEditor({
   content: `<img src="..."/>`,
 });
 ```
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
