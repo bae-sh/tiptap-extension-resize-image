@@ -55,6 +55,44 @@ const editor = useEditor({
 });
 ```
 
+### Resize limits
+
+You can set minimum and maximum width constraints to limit how small or large images can be resized:
+
+```javascript
+const editor = useEditor({
+  extensions: [
+    StarterKit,
+    ImageResize.configure({
+      minWidth: 100, // Minimum width in pixels
+      maxWidth: 800, // Maximum width in pixels
+    }),
+  ],
+  content: `<img src="..."/>`,
+});
+```
+
+Both `minWidth` and `maxWidth` are optional. You can set one, both, or neither:
+
+```javascript
+// Only set a minimum width
+ImageResize.configure({ minWidth: 50 });
+
+// Only set a maximum width
+ImageResize.configure({ maxWidth: 1200 });
+
+// Set both constraints
+ImageResize.configure({ minWidth: 100, maxWidth: 800 });
+```
+
+## Options
+
+| Option     | Type      | Default     | Description                                     |
+| ---------- | --------- | ----------- | ----------------------------------------------- |
+| `inline`   | `boolean` | `false`     | Render images as inline elements                |
+| `minWidth` | `number`  | `undefined` | Minimum width in pixels (cannot resize smaller) |
+| `maxWidth` | `number`  | `undefined` | Maximum width in pixels (cannot resize larger)  |
+
 ## Contributing
 
 Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
