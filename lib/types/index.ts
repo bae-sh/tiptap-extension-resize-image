@@ -4,6 +4,11 @@ export interface ResizeState {
   startWidth: number;
 }
 
+export interface ResizeLimits {
+  minWidth?: number;
+  maxWidth?: number;
+}
+
 export interface PositionController {
   element: HTMLElement;
   leftController: HTMLElement;

@@ -1,7 +1,7 @@
 import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
-import { ImageElements } from '../types';
+import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
 
@@ -16,10 +16,12 @@ export class ImageNodeView {
   private context: NodeViewContext;
   private elements: ImageElements;
   private inline: boolean;
+  private resizeLimits: ResizeLimits;
 
-  constructor(context: NodeViewContext, inline: boolean) {
+  constructor(context: NodeViewContext, inline: boolean, resizeLimits: ResizeLimits = {}) {
     this.context = context;
     this.inline = inline;
+    this.resizeLimits = resizeLimits;
     this.elements = this.createElements();
   }
 
@@ -79,7 +81,11 @@ export class ImageNodeView {
   }
 
   private createResizeHandler(): void {
-    const resizeHandler = new ResizeController(this.elements, this.dispatchNodeView);
+    const resizeHandler = new ResizeController(
+      this.elements,
+      this.dispatchNodeView,
+      this.resizeLimits
+    );
 
     Array.from({ length: 4 }, (_, index) => {
       const dot = resizeHandler.createResizeHandle(index);
