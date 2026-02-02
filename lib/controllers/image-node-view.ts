@@ -1,6 +1,7 @@
 import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
+import { clampWidth } from '../utils/clamp-width';
 import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
@@ -71,6 +72,26 @@ export class ImageNodeView {
     this.elements.container.appendChild(this.elements.img);
   }
 
+  /**
+   * Applies min/max width limits to the container and image.
+   * Enforces configured limits on initial render and when container style is re-applied.
+   */
+  private applyResizeLimits(): void {
+    const widthStr = AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText);
+    if (widthStr === null) return;
+
+    const width = Number(widthStr);
+    if (Number.isNaN(width)) return;
+
+    const clamped = clampWidth(width, this.resizeLimits);
+    if (clamped === width) return;
+
+    const clampedPx = `${clamped}px`;
+    this.elements.container.style.width = clampedPx;
+    this.elements.img.style.width = clampedPx;
+    this.elements.img.setAttribute('width', String(clamped));
+  }
+
   private createPositionController(): void {
     const positionController = new PositionController(
       this.elements,
@@ -106,6 +127,7 @@ export class ImageNodeView {
         `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
       );
 
+      this.applyResizeLimits();
       this.createResizeHandler();
     });
   }
@@ -128,6 +150,7 @@ export class ImageNodeView {
   initialize(): { dom: HTMLElement } {
     this.setupDOMStructure();
     this.setupImageAttributes();
+    this.applyResizeLimits();
 
     const { editable } = this.context.editor.options;
     if (!editable) return { dom: this.elements.container };

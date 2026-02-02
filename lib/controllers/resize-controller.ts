@@ -1,4 +1,5 @@
 import { ImageElements, ResizeLimits, ResizeState } from '../types';
+import { clampWidth } from '../utils/clamp-width';
 import { StyleManager } from '../utils/style-manager';
 
 export class ResizeController {
@@ -21,26 +22,12 @@ export class ResizeController {
     this.resizeLimits = resizeLimits;
   }
 
-  private clampWidth(width: number): number {
-    const { minWidth, maxWidth } = this.resizeLimits;
-
-    // Always enforce minimum of 0 to prevent invalid negative CSS values
-    const absoluteMin = minWidth !== undefined ? Math.max(0, minWidth) : 0;
-    let clampedWidth = Math.max(absoluteMin, width);
-
-    if (maxWidth !== undefined && clampedWidth > maxWidth) {
-      clampedWidth = maxWidth;
-    }
-
-    return clampedWidth;
-  }
-
   private handleMouseMove = (e: MouseEvent, index: number): void => {
     if (!this.state.isResizing) return;
 
     const deltaX =
       index % 2 === 0 ? -(e.clientX - this.state.startX) : e.clientX - this.state.startX;
-    const newWidth = this.clampWidth(this.state.startWidth + deltaX);
+    const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
     this.elements.container.style.width = newWidth + 'px';
     this.elements.img.style.width = newWidth + 'px';
@@ -60,7 +47,7 @@ export class ResizeController {
       index % 2 === 0
         ? -(e.touches[0].clientX - this.state.startX)
         : e.touches[0].clientX - this.state.startX;
-    const newWidth = this.clampWidth(this.state.startWidth + deltaX);
+    const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
     this.elements.container.style.width = newWidth + 'px';
     this.elements.img.style.width = newWidth + 'px';
