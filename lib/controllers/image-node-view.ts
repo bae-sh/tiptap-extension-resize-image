@@ -77,14 +77,18 @@ export class ImageNodeView {
    * Enforces configured limits on initial render and when container style is re-applied.
    */
   private applyResizeLimits(): void {
-    const widthStr = AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText);
-    if (widthStr === null) return;
+    let widthStr = AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText);
+
+    if (widthStr === null) {
+      const maxWidth = this.resizeLimits.maxWidth;
+      if (!maxWidth) return;
+      widthStr = maxWidth.toString();
+    }
 
     const width = Number(widthStr);
     if (Number.isNaN(width)) return;
 
     const clamped = clampWidth(width, this.resizeLimits);
-    if (clamped === width) return;
 
     const clampedPx = `${clamped}px`;
     this.elements.container.style.width = clampedPx;
