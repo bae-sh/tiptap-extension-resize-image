@@ -1,7 +1,8 @@
 import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
-import { ImageElements } from '../types';
+import { clampWidth } from '../utils/clamp-width';
+import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
 
@@ -16,10 +17,12 @@ export class ImageNodeView {
   private context: NodeViewContext;
   private elements: ImageElements;
   private inline: boolean;
+  private resizeLimits: ResizeLimits;
 
-  constructor(context: NodeViewContext, inline: boolean) {
+  constructor(context: NodeViewContext, inline: boolean, resizeLimits: ResizeLimits = {}) {
     this.context = context;
     this.inline = inline;
+    this.resizeLimits = resizeLimits;
     this.elements = this.createElements();
   }
 
@@ -69,6 +72,30 @@ export class ImageNodeView {
     this.elements.container.appendChild(this.elements.img);
   }
 
+  /**
+   * Applies min/max width limits to the container and image.
+   * Enforces configured limits on initial render and when container style is re-applied.
+   */
+  private applyResizeLimits(): void {
+    let widthStr = AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText);
+
+    if (widthStr === null) {
+      const maxWidth = this.resizeLimits.maxWidth;
+      if (!maxWidth) return;
+      widthStr = maxWidth.toString();
+    }
+
+    const width = Number(widthStr);
+    if (Number.isNaN(width)) return;
+
+    const clamped = clampWidth(width, this.resizeLimits);
+
+    const clampedPx = `${clamped}px`;
+    this.elements.container.style.width = clampedPx;
+    this.elements.img.style.width = clampedPx;
+    this.elements.img.setAttribute('width', String(clamped));
+  }
+
   private createPositionController(): void {
     const positionController = new PositionController(
       this.elements,
@@ -79,7 +106,11 @@ export class ImageNodeView {
   }
 
   private createResizeHandler(): void {
-    const resizeHandler = new ResizeController(this.elements, this.dispatchNodeView);
+    const resizeHandler = new ResizeController(
+      this.elements,
+      this.dispatchNodeView,
+      this.resizeLimits
+    );
 
     Array.from({ length: 4 }, (_, index) => {
       const dot = resizeHandler.createResizeHandle(index);
@@ -100,6 +131,7 @@ export class ImageNodeView {
         `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
       );
 
+      this.applyResizeLimits();
       this.createResizeHandler();
     });
   }
@@ -122,6 +154,7 @@ export class ImageNodeView {
   initialize(): { dom: HTMLElement } {
     this.setupDOMStructure();
     this.setupImageAttributes();
+    this.applyResizeLimits();
 
     const { editable } = this.context.editor.options;
     if (!editable) return { dom: this.elements.container };

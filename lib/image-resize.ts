@@ -1,14 +1,23 @@
 import Image from '@tiptap/extension-image';
 import { StyleManager } from './utils/style-manager';
 import { ImageNodeView } from './controllers/image-node-view';
+import { ResizeLimits } from './types';
 
-export const ImageResize = Image.extend({
+export interface ImageResizeOptions {
+  inline: boolean;
+  minWidth?: number;
+  maxWidth?: number;
+}
+
+export const ImageResize = Image.extend<ImageResizeOptions>({
   name: 'imageResize',
 
   addOptions() {
     return {
       ...this.parent?.(),
       inline: false,
+      minWidth: undefined,
+      maxWidth: undefined,
     };
   },
 
@@ -38,7 +47,7 @@ export const ImageResize = Image.extend({
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const inline = this.options.inline;
+      const { inline, minWidth, maxWidth } = this.options;
       const context = {
         node,
         editor,
@@ -46,7 +55,8 @@ export const ImageResize = Image.extend({
         getPos: typeof getPos === 'function' ? getPos : undefined,
       };
 
-      const nodeView = new ImageNodeView(context, inline);
+      const resizeLimits: ResizeLimits = { minWidth, maxWidth };
+      const nodeView = new ImageNodeView(context, inline, resizeLimits);
       return nodeView.initialize();
     };
   },

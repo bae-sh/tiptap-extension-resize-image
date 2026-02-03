@@ -1,18 +1,25 @@
-import { ImageElements, ResizeState } from '../types';
+import { ImageElements, ResizeLimits, ResizeState } from '../types';
+import { clampWidth } from '../utils/clamp-width';
 import { StyleManager } from '../utils/style-manager';
 
 export class ResizeController {
   private elements: ImageElements;
   private dispatchNodeView: () => void;
+  private resizeLimits: ResizeLimits;
   private state: ResizeState = {
     isResizing: false,
     startX: 0,
     startWidth: 0,
   };
 
-  constructor(elements: ImageElements, dispatchNodeView: () => void) {
+  constructor(
+    elements: ImageElements,
+    dispatchNodeView: () => void,
+    resizeLimits: ResizeLimits = {}
+  ) {
     this.elements = elements;
     this.dispatchNodeView = dispatchNodeView;
+    this.resizeLimits = resizeLimits;
   }
 
   private handleMouseMove = (e: MouseEvent, index: number): void => {
@@ -20,7 +27,7 @@ export class ResizeController {
 
     const deltaX =
       index % 2 === 0 ? -(e.clientX - this.state.startX) : e.clientX - this.state.startX;
-    const newWidth = this.state.startWidth + deltaX;
+    const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
     this.elements.container.style.width = newWidth + 'px';
     this.elements.img.style.width = newWidth + 'px';
@@ -40,7 +47,7 @@ export class ResizeController {
       index % 2 === 0
         ? -(e.touches[0].clientX - this.state.startX)
         : e.touches[0].clientX - this.state.startX;
-    const newWidth = this.state.startWidth + deltaX;
+    const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
     this.elements.container.style.width = newWidth + 'px';
     this.elements.img.style.width = newWidth + 'px';
