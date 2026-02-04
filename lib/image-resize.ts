@@ -1,9 +1,9 @@
-import Image from '@tiptap/extension-image';
+import Image, { ImageOptions } from '@tiptap/extension-image';
 import { StyleManager } from './utils/style-manager';
 import { ImageNodeView } from './controllers/image-node-view';
 import { ResizeLimits } from './types';
 
-export interface ImageResizeOptions {
+export interface ImageResizeOptions extends ImageOptions {
   inline: boolean;
   minWidth?: number;
   maxWidth?: number;
