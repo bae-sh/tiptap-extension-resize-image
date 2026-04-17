@@ -14,8 +14,8 @@ interface NodeViewContext {
 }
 
 export class ImageNodeView {
-  private context: NodeViewContext;
-  private elements: ImageElements;
+  protected context: NodeViewContext;
+  protected elements: ImageElements;
   private inline: boolean;
   private resizeLimits: ResizeLimits;
   private handleContainerClick = (): void => {
@@ -53,7 +53,7 @@ export class ImageNodeView {
     this.elements = this.createElements();
   }
 
-  private createElements(): ImageElements {
+  protected createElements(): ImageElements {
     return {
       wrapper: document.createElement('div'),
       container: document.createElement('div'),
@@ -61,11 +61,11 @@ export class ImageNodeView {
     };
   }
 
-  private clearContainerBorder = (): void => {
+  protected clearContainerBorder = (): void => {
     utils.clearContainerBorder(this.elements.container);
   };
 
-  private dispatchNodeView = (): void => {
+  protected dispatchNodeView = (): void => {
     const { view, getPos } = this.context;
     if (typeof getPos === 'function') {
       this.clearContainerBorder();
@@ -85,11 +85,11 @@ export class ImageNodeView {
     utils.removeResizeElements(this.elements.container);
   };
 
-  private setupImageAttributes(): void {
+  protected setupImageAttributes(): void {
     AttributeParser.parseImageAttributes(this.context.node.attrs, this.elements.img);
   }
 
-  private setupDOMStructure(): void {
+  protected setupDOMStructure(): void {
     const { wrapperStyle, containerStyle } = this.context.node.attrs;
 
     this.elements.wrapper.setAttribute('style', wrapperStyle);
@@ -103,7 +103,7 @@ export class ImageNodeView {
    * Applies min/max width limits to the container and image.
    * Enforces configured limits on initial render and when container style is re-applied.
    */
-  private applyResizeLimits(): void {
+  protected applyResizeLimits(): void {
     let widthStr = AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText);
 
     if (widthStr === null) {
@@ -145,11 +145,11 @@ export class ImageNodeView {
     });
   }
 
-  private setupContainerClick(): void {
+  protected setupContainerClick(): void {
     this.elements.container.addEventListener('click', this.handleContainerClick);
   }
 
-  private setupContentClick(): void {
+  protected setupContentClick(): void {
     document.addEventListener('click', this.handleDocumentClick);
   }
 
