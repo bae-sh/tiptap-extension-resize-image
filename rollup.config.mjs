@@ -7,7 +7,15 @@ export default [
       { dir: 'dist', format: 'cjs', sourcemap: true, exports: 'named' },
       { dir: 'esm', format: 'esm', sourcemap: true, exports: 'named' },
     ],
-    external: ['@tiptap/core', '@tiptap/extension-image', '@tiptap/pm', 'tslib'],
+    external: [
+      '@tiptap/core',
+      '@tiptap/extension-image',
+      '@tiptap/pm',
+      '@tiptap/pm/state',
+      '@tiptap/pm/model',
+      '@tiptap/pm/view',
+      'tslib',
+    ],
     plugins: [
       typescript({
         tsconfig: './tsconfig.json',
@@ -15,6 +23,7 @@ export default [
         declarationDir: undefined,
         declarationMap: false,
         outDir: undefined,
+        include: ['*.ts', '**/*.ts'],
       }),
     ],
   },
