@@ -93,6 +93,116 @@ ImageResize.configure({ minWidth: 100, maxWidth: 800 });
 | `minWidth` | `number`  | `undefined` | Minimum width in pixels (cannot resize smaller) |
 | `maxWidth` | `number`  | `undefined` | Maximum width in pixels (cannot resize larger)  |
 
+<br/>
+
+## Figure with caption
+
+`Figure` and `Figcaption` extensions allow you to add a caption to an image. The `Figure` node wraps an image with a `figcaption` element, and provides commands to add, remove, or toggle captions.
+
+```javascript
+import StarterKit from '@tiptap/starter-kit';
+import { ImageResize, Figure, Figcaption } from 'tiptap-extension-resize-image';
+
+const editor = useEditor({
+  extensions: [StarterKit, ImageResize, Figure, Figcaption],
+});
+```
+
+### Commands
+
+| Command           | Description                                                |
+| ----------------- | ---------------------------------------------------------- |
+| `addCaption()`    | Converts a selected `imageResize` node to a `figure` node  |
+| `removeCaption()` | Converts a selected `figure` node to an `imageResize` node |
+| `toggleCaption()` | Toggles between `imageResize` and `figure` node            |
+
+```javascript
+// Add a caption to a selected image
+editor.commands.addCaption();
+
+// Add a caption with initial text
+editor.commands.addCaption('My caption');
+
+// Remove a caption from a selected figure
+editor.commands.removeCaption();
+
+// Toggle between imageResize and figure
+editor.commands.toggleCaption();
+```
+
+### Additional Setup
+
+Figcaption placeholders are displayed with the help of CSS. Add the following styles to your project. You can customize these styles to match your design:
+
+```css
+/* Basic figcaption styles */
+figcaption {
+  text-align: left;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Placeholder styles - displayed when figcaption is empty */
+/* Uses the data-placeholder attribute set by the Figcaption extension */
+figcaption.is-empty::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+```
+
+### Figcaption Options
+
+| Option        | Type     | Default                | Description                        |
+| ------------- | -------- | ---------------------- | ---------------------------------- |
+| `placeholder` | `string` | `'Write a caption...'` | Placeholder text for empty caption |
+
+```javascript
+Figcaption.configure({
+  placeholder: 'placeholder text as you want',
+});
+```
+
+### Tiptap v3 Notice
+
+In Tiptap v3, `shouldRerenderOnTransaction` defaults to `false`, which means components won't automatically re-render on editor state changes. To reactively update button states (e.g., `disabled`), use one of the following approaches:
+
+**Option 1: Enable `shouldRerenderOnTransaction`**
+
+```javascript
+const editor = useEditor({
+  shouldRerenderOnTransaction: true,
+  extensions: [...],
+});
+
+// Now you can use editor.can() directly
+<button
+  onClick={() => editor.commands.addCaption()}
+  disabled={!editor.can().addCaption()}
+>
+  Add Caption
+</button>
+```
+
+**Option 2: Use `useEditorState` (recommended)**
+
+```javascript
+import { useEditorState } from '@tiptap/react';
+
+const { canAddCaption, canRemoveCaption } = useEditorState({
+  editor,
+  selector: (ctx) => ({
+    canAddCaption: ctx.editor.can().addCaption(),
+  }),
+});
+
+<button onClick={() => editor.commands.addCaption()} disabled={!canAddCaption}>
+  Add Caption
+</button>;
+```
+
 ## Contributing
 
 Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
