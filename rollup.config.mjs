@@ -1,17 +1,20 @@
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 
 export default [
   {
     input: 'lib/index.ts',
     output: [
-      { dir: 'dist', format: 'cjs', sourcemap: true, exports: 'auto' },
-      { dir: 'esm', format: 'esm', sourcemap: true, exports: 'auto' },
+      { dir: 'dist', format: 'cjs', sourcemap: true, exports: 'named' },
+      { dir: 'esm', format: 'esm', sourcemap: true, exports: 'named' },
     ],
     external: ['@tiptap/core', '@tiptap/extension-image', '@tiptap/pm', 'tslib'],
     plugins: [
       typescript({
         tsconfig: './tsconfig.json',
-        useTsconfigDeclarationDir: true,
+        declaration: false,
+        declarationDir: undefined,
+        declarationMap: false,
+        outDir: undefined,
       }),
     ],
   },

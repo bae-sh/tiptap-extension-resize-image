@@ -3,7 +3,7 @@
     "target": "es6",
     "esModuleInterop": true,
     "jsx": "react",
-    "lib": ["es5", "es6", "dom"],
+    "lib": ["es2017", "dom"],
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "./dist",
@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "node"
+    "moduleResolution": "bundler"
   },
   "include": ["./lib/**/*.ts", "./lib/**/*.tsx"]
 }
