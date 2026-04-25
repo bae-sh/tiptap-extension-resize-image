@@ -20,7 +20,8 @@
     "build:tsc": "yarn tsc --declaration --emitDeclarationOnly --declarationDir dist",
     "build:rollup": "rollup -c rollup.config.mjs",
     "clean": "rm -rf dist esm",
-    "test": "jest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "bae-sh <hyeon1293@gmail.com>",
   "contributors": [
@@ -50,10 +51,12 @@
     "@tiptap/extension-image": "^2.1.13",
     "@tiptap/pm": "^2.1.13",
     "@types/node": "^20.10.4",
+    "jsdom": "^29.0.2",
     "prettier": "^3.3.3",
     "rollup": "^4.8.0",
     "tslib": "^2.6.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.5"
   },
   "peerDependencies": {
     "@tiptap/core": "^2.0.0 || ^3.0.0",
