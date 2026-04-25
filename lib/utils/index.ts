@@ -22,10 +22,8 @@ export const utils = {
   },
 
   removeResizeElements(container: HTMLElement): void {
-    if (container.childElementCount > 3) {
-      for (let i = 0; i < 5; i++) {
-        container.removeChild(container.lastChild as Node);
-      }
-    }
+    container
+      .querySelectorAll<HTMLElement>('[data-resize-image-ui]')
+      .forEach((element) => element.remove());
   },
 };

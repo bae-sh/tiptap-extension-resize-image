@@ -62,6 +62,7 @@ export class ResizeController {
 
   createResizeHandle(index: number): HTMLElement {
     const dot = document.createElement('div');
+    dot.dataset.resizeImageUi = 'resize-handle';
     dot.setAttribute('style', StyleManager.getDotStyle(index));
 
     dot.addEventListener('mousedown', (e) => {
@@ -94,10 +95,12 @@ export class ResizeController {
           this.handleTouchEnd();
           document.removeEventListener('touchmove', onTouchMove);
           document.removeEventListener('touchend', onTouchEnd);
+          document.removeEventListener('touchcancel', onTouchEnd);
         };
 
         document.addEventListener('touchmove', onTouchMove);
         document.addEventListener('touchend', onTouchEnd);
+        document.addEventListener('touchcancel', onTouchEnd);
       },
       { passive: false }
     );

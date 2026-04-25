@@ -70,6 +70,7 @@ export class PositionController {
 
   createPositionControls(): PositionController {
     const controller = document.createElement('div');
+    controller.dataset.resizeImageUi = 'position-controller';
     controller.setAttribute('style', StyleManager.getPositionControllerStyle(this.inline));
 
     const leftController = this.createControllerIcon(CONSTANTS.ICONS.LEFT);

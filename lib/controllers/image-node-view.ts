@@ -18,6 +18,33 @@ export class ImageNodeView {
   private elements: ImageElements;
   private inline: boolean;
   private resizeLimits: ResizeLimits;
+  private handleContainerClick = (): void => {
+    const isMobile = utils.isMobile();
+    const editorDom = this.context.view.dom as HTMLElement | undefined;
+    isMobile && editorDom?.blur();
+
+    this.removeResizeElements();
+    this.createPositionController();
+
+    this.elements.container.setAttribute(
+      'style',
+      `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
+    );
+
+    this.applyResizeLimits();
+    this.createResizeHandler();
+  };
+  private handleDocumentClick = (e: MouseEvent): void => {
+    const target = e.target as HTMLElement | null;
+    const isClickInside =
+      !!target &&
+      (this.elements.container.contains(target) || !!target.closest('[data-resize-image-ui]'));
+
+    if (!isClickInside) {
+      this.clearContainerBorder();
+      this.removeResizeElements();
+    }
+  };
 
   constructor(context: NodeViewContext, inline: boolean, resizeLimits: ResizeLimits = {}) {
     this.context = context;
@@ -119,39 +146,20 @@ export class ImageNodeView {
   }
 
   private setupContainerClick(): void {
-    this.elements.container.addEventListener('click', () => {
-      const isMobile = utils.isMobile();
-      isMobile && (document.querySelector('.ProseMirror-focused') as HTMLElement)?.blur();
-
-      this.removeResizeElements();
-      this.createPositionController();
-
-      this.elements.container.setAttribute(
-        'style',
-        `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
-      );
-
-      this.applyResizeLimits();
-      this.createResizeHandler();
-    });
+    this.elements.container.addEventListener('click', this.handleContainerClick);
   }
 
   private setupContentClick(): void {
-    document.addEventListener('click', (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const isClickInside =
-        this.elements.container.contains(target) ||
-        target.style.cssText ===
-          `width: ${CONSTANTS.ICON_SIZE}; height: ${CONSTANTS.ICON_SIZE}; cursor: pointer;`;
-
-      if (!isClickInside) {
-        this.clearContainerBorder();
-        this.removeResizeElements();
-      }
-    });
+    document.addEventListener('click', this.handleDocumentClick);
   }
 
-  initialize(): { dom: HTMLElement } {
+  private destroy = (): void => {
+    this.elements.container.removeEventListener('click', this.handleContainerClick);
+    document.removeEventListener('click', this.handleDocumentClick);
+    this.removeResizeElements();
+  };
+
+  initialize(): { dom: HTMLElement; destroy?: () => void } {
     this.setupDOMStructure();
     this.setupImageAttributes();
     this.applyResizeLimits();
@@ -164,6 +172,7 @@ export class ImageNodeView {
 
     return {
       dom: this.elements.wrapper,
+      destroy: this.destroy,
     };
   }
 }
