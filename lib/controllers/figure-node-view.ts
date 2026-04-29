@@ -34,42 +34,46 @@ export class FigureNodeView extends ImageNodeView {
     }
   };
 
+  private handleNodeSelection = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (!this.elements.img.contains(target) && target !== this.elements.img) return;
+
+    const { view, getPos } = this.context;
+    if (typeof getPos === 'function') {
+      const pos = getPos();
+      view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+    }
+  };
+
   // Sets NodeSelection to the figure node when the image area is clicked
   private setupNodeSelection(): void {
-    this.elements.container.addEventListener('click', (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!this.elements.img.contains(target) && target !== this.elements.img) return;
-
-      const { view, getPos } = this.context;
-      if (typeof getPos === 'function') {
-        const pos = getPos();
-        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
-      }
-    });
+    this.elements.container.addEventListener('click', this.handleNodeSelection);
   }
+
+  private handleDragStart = (event: DragEvent) => {
+    if (!event.dataTransfer) return;
+
+    const { view, getPos } = this.context;
+    if (typeof getPos !== 'function') return;
+
+    const pos = getPos();
+    const node = view.state.doc.nodeAt(pos);
+    if (!node) return;
+
+    const serializer = DOMSerializer.fromSchema(view.state.schema);
+    const dom = serializer.serializeNode(node);
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(dom);
+
+    event.dataTransfer.clearData();
+    event.dataTransfer.setData('text/html', wrapper.innerHTML);
+    event.dataTransfer.effectAllowed = 'move';
+  };
 
   // Overrides the default drag behavior to serialize the figure node
   // based on renderHTML, preventing Controller from being copied
   private setupDragStart(): void {
-    this.elements.wrapper.addEventListener('dragstart', (event: DragEvent) => {
-      if (!event.dataTransfer) return;
-
-      const { view, getPos } = this.context;
-      if (typeof getPos !== 'function') return;
-
-      const pos = getPos();
-      const node = view.state.doc.nodeAt(pos);
-      if (!node) return;
-
-      const serializer = DOMSerializer.fromSchema(view.state.schema);
-      const dom = serializer.serializeNode(node);
-      const wrapper = document.createElement('div');
-      wrapper.appendChild(dom);
-
-      event.dataTransfer.clearData();
-      event.dataTransfer.setData('text/html', wrapper.innerHTML);
-      event.dataTransfer.effectAllowed = 'move';
-    });
+    this.elements.wrapper.addEventListener('dragstart', this.handleDragStart);
   }
 
   // Updates the DOM when the node's attrs change.
@@ -122,6 +126,11 @@ export class FigureNodeView extends ImageNodeView {
         if (mutation.type === 'selection') return false;
         // Ignore mutations outside figcaption to prevent NodeView re-rendering
         return !figcaption.contains(mutation.target as Node);
+      },
+      destroy: () => {
+        this.destroy();
+        this.elements.container.removeEventListener('click', this.handleNodeSelection);
+        this.elements.wrapper.removeEventListener('dragstart', this.handleDragStart);
       },
     };
   }

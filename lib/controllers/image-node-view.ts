@@ -153,7 +153,7 @@ export class ImageNodeView {
     document.addEventListener('click', this.handleDocumentClick);
   }
 
-  private destroy = (): void => {
+  protected destroy = (): void => {
     this.elements.container.removeEventListener('click', this.handleContainerClick);
     document.removeEventListener('click', this.handleDocumentClick);
     this.removeResizeElements();
