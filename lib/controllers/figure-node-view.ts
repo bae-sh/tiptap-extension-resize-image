@@ -2,6 +2,7 @@ import { NodeSelection } from '@tiptap/pm/state';
 import { NodeView } from '@tiptap/pm/view';
 import { Node as ProseMirrorNode, DOMSerializer } from '@tiptap/pm/model';
 import { AttributeParser } from '../utils/attribute-parser';
+import { sanitizeStyle } from '../utils/style-sanitizer';
 import { ImageNodeView } from './image-node-view';
 
 export class FigureNodeView extends ImageNodeView {
@@ -12,13 +13,15 @@ export class FigureNodeView extends ImageNodeView {
     if (typeof getPos === 'function') {
       this.clearContainerBorder();
 
+      const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
+      const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
       const newAttrs = {
         ...this.context.node.attrs,
         width:
-          AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText) ??
+          AttributeParser.extractWidthFromStyle(containerStyle) ??
           this.context.node.attrs.width,
-        containerStyle: `${this.elements.container.style.cssText}`,
-        wrapperStyle: `${this.elements.wrapper.style.cssText}`,
+        containerStyle,
+        wrapperStyle,
       };
 
       // setNodeMarkup causes the current NodeSelection to fall back to TextSelection inside the figcaption
@@ -82,8 +85,8 @@ export class FigureNodeView extends ImageNodeView {
     if (node.type !== this.context.node.type) return false;
 
     this.context.node = node;
-    this.elements.wrapper.setAttribute('style', node.attrs.wrapperStyle);
-    this.elements.container.setAttribute('style', node.attrs.containerStyle);
+    this.elements.wrapper.setAttribute('style', sanitizeStyle(node.attrs.wrapperStyle));
+    this.elements.container.setAttribute('style', sanitizeStyle(node.attrs.containerStyle));
     this.setupImageAttributes();
     this.elements.img.setAttribute('style', 'cursor: pointer');
     this.applyResizeLimits();

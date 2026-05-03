@@ -2,6 +2,7 @@ import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
 import { clampWidth } from '../utils/clamp-width';
+import { sanitizeStyle } from '../utils/style-sanitizer';
 import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
@@ -26,10 +27,14 @@ export class ImageNodeView {
     this.removeResizeElements();
     this.createPositionController();
 
-    this.elements.container.setAttribute(
-      'style',
-      `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
-    );
+    // Always re-apply the sanitized container style first so any rules left
+    // over from a previous interaction are cleared, then add the transient
+    // selection border via direct property assignment (not cssText) so it
+    // can never be persisted into the node attrs.
+    const sanitized = sanitizeStyle(this.context.node.attrs.containerStyle);
+    this.elements.container.setAttribute('style', sanitized);
+    this.elements.container.style.position = 'relative';
+    this.elements.container.style.border = `1px dashed ${CONSTANTS.COLORS.BORDER}`;
 
     this.applyResizeLimits();
     this.createResizeHandler();
@@ -69,13 +74,15 @@ export class ImageNodeView {
     const { view, getPos } = this.context;
     if (typeof getPos === 'function') {
       this.clearContainerBorder();
+      const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
+      const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
       const newAttrs = {
         ...this.context.node.attrs,
         width:
-          AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText) ??
+          AttributeParser.extractWidthFromStyle(containerStyle) ??
           this.context.node.attrs.width,
-        containerStyle: `${this.elements.container.style.cssText}`,
-        wrapperStyle: `${this.elements.wrapper.style.cssText}`,
+        containerStyle,
+        wrapperStyle,
       };
       view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
     }
@@ -92,10 +99,10 @@ export class ImageNodeView {
   protected setupDOMStructure(): void {
     const { wrapperStyle, containerStyle } = this.context.node.attrs;
 
-    this.elements.wrapper.setAttribute('style', wrapperStyle);
+    this.elements.wrapper.setAttribute('style', sanitizeStyle(wrapperStyle));
     this.elements.wrapper.appendChild(this.elements.container);
 
-    this.elements.container.setAttribute('style', containerStyle);
+    this.elements.container.setAttribute('style', sanitizeStyle(containerStyle));
     this.elements.container.appendChild(this.elements.img);
   }
 

@@ -2,6 +2,7 @@ import { mergeAttributes } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { ImageResizeOptions, ImageResize } from './image-resize';
 import { StyleManager } from './utils/style-manager';
+import { sanitizeStyle } from './utils/style-sanitizer';
 import { ResizeLimits } from './types';
 import { FigureNodeView } from './controllers/figure-node-view';
 
@@ -53,16 +54,20 @@ export const Figure = ImageResize.extend<FigureOptions>({
         parseHTML: (element) => {
           const img = element.querySelector('img');
           const containerStyle = img?.getAttribute('containerstyle');
-          if (containerStyle) return containerStyle;
+          if (containerStyle) return sanitizeStyle(containerStyle);
 
           const width = img?.getAttribute('width');
           return width
             ? StyleManager.getContainerStyle(false, `${width}px`)
-            : `${img?.style.cssText}`;
+            : sanitizeStyle(img?.style.cssText);
         },
       },
       wrapperStyle: {
         default: StyleManager.getWrapperStyle(false),
+        parseHTML: (element) => {
+          const wrapperStyle = element.getAttribute('wrapperstyle');
+          return wrapperStyle ? sanitizeStyle(wrapperStyle) : StyleManager.getWrapperStyle(false);
+        },
       },
     };
   },

@@ -1,5 +1,6 @@
 import Image, { ImageOptions } from '@tiptap/extension-image';
 import { StyleManager } from './utils/style-manager';
+import { sanitizeStyle } from './utils/style-sanitizer';
 import { ImageNodeView } from './controllers/image-node-view';
 import { ResizeLimits } from './types';
 
@@ -30,17 +31,21 @@ export const ImageResize = Image.extend<ImageResizeOptions>({
         parseHTML: (element) => {
           const containerStyle = element.getAttribute('containerstyle');
           if (containerStyle) {
-            return containerStyle;
+            return sanitizeStyle(containerStyle);
           }
 
           const width = element.getAttribute('width');
           return width
             ? StyleManager.getContainerStyle(inline, `${width}px`)
-            : `${element.style.cssText}`;
+            : sanitizeStyle(element.style.cssText);
         },
       },
       wrapperStyle: {
         default: StyleManager.getWrapperStyle(inline),
+        parseHTML: (element) => {
+          const wrapperStyle = element.getAttribute('wrapperstyle');
+          return wrapperStyle ? sanitizeStyle(wrapperStyle) : StyleManager.getWrapperStyle(inline);
+        },
       },
     };
   },
