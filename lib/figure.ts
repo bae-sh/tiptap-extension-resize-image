@@ -113,6 +113,10 @@ export const Figure = ImageResize.extend<FigureOptions>({
           const node = state.doc.nodeAt(from);
 
           if (!node || node.type.name !== 'imageResize') return false;
+          // Figure is a block-level node and cannot wrap an inline image without
+          // breaking its parent (e.g. paragraph). Reject the caption insertion
+          // when the source image is inline.
+          if (node.isInline) return false;
 
           const figcaptionNode = schema.nodes.figcaption.create(
             {},

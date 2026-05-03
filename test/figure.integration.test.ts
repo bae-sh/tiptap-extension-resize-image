@@ -38,6 +38,48 @@ function createEditor(type: 'figure' | 'imageResize' = 'figure', placeholder?: s
   });
 }
 
+function createInlineImageEditor() {
+  return new Editor({
+    extensions: [
+      Document,
+      Paragraph,
+      Text,
+      ImageResize.configure({ inline: true }),
+      Figure,
+      Figcaption,
+    ],
+    element: document.createElement('div'),
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'before ' },
+            {
+              type: 'imageResize',
+              attrs: {
+                src: 'https://example.com/image.png',
+                alt: 'inline',
+                width: 200,
+              },
+            },
+            { type: 'text', text: ' after' },
+          ],
+        },
+      ],
+    },
+  });
+}
+
+function findImagePos(ed: Editor): number {
+  let pos = -1;
+  ed.state.doc.descendants((node, p) => {
+    if (node.type.name === 'imageResize' && pos === -1) pos = p;
+  });
+  return pos;
+}
+
 describe('Figure', () => {
   let editor: Editor;
 
@@ -104,6 +146,35 @@ describe('Figure', () => {
 
         expect(doc.resolve(selection.from).parent.type.name).toBe('figcaption');
       });
+
+      describe('inline ImageResize', () => {
+        it('returns false when the source image is inline', () => {
+          editor = createInlineImageEditor();
+          editor.commands.setNodeSelection(findImagePos(editor));
+
+          const result = editor.chain().focus().addCaption().run();
+
+          expect(result).toBe(false);
+        });
+
+        it('does not modify the document when the source image is inline', () => {
+          editor = createInlineImageEditor();
+          editor.commands.setNodeSelection(findImagePos(editor));
+
+          const docBefore = editor.state.doc.toJSON();
+          editor.chain().focus().addCaption('caption').run();
+          const docAfter = editor.state.doc.toJSON();
+
+          expect(docAfter).toEqual(docBefore);
+        });
+
+        it('reports addCaption as not executable via editor.can()', () => {
+          editor = createInlineImageEditor();
+          editor.commands.setNodeSelection(findImagePos(editor));
+
+          expect(editor.can().addCaption()).toBe(false);
+        });
+      });
     });
 
     describe('removeCaption', () => {
@@ -142,6 +213,28 @@ describe('Figure', () => {
 
         editor.chain().focus().toggleCaption().run();
         expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
+      });
+
+      describe('inline ImageResize', () => {
+        it('returns false when the source image is inline', () => {
+          editor = createInlineImageEditor();
+          editor.commands.setNodeSelection(findImagePos(editor));
+
+          const result = editor.chain().focus().toggleCaption().run();
+
+          expect(result).toBe(false);
+        });
+
+        it('does not modify the document when toggling on an inline image', () => {
+          editor = createInlineImageEditor();
+          editor.commands.setNodeSelection(findImagePos(editor));
+
+          const docBefore = editor.state.doc.toJSON();
+          editor.chain().focus().toggleCaption().run();
+          const docAfter = editor.state.doc.toJSON();
+
+          expect(docAfter).toEqual(docBefore);
+        });
       });
     });
   });

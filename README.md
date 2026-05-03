@@ -130,6 +130,31 @@ editor.commands.removeCaption();
 editor.commands.toggleCaption();
 ```
 
+### Captions are not available in inline mode
+
+When `ImageResize` is configured with `inline: true`, the image becomes an
+inline node that lives inside paragraphs (or other inline containers).
+A `figure`, on the other hand, is a block-level node by HTML spec and cannot
+be nested inside such inline containers without breaking the document
+structure.
+
+For this reason, `addCaption()` (and `toggleCaption()` when the current node
+is an inline image) will return `false` and do nothing in this case. You can
+use this return value to disable the caption button in your UI:
+
+```javascript
+<button
+  onClick={() => editor.chain().focus().addCaption().run()}
+  disabled={!editor.can().addCaption()}
+>
+  Add Caption
+</button>
+```
+
+If you need both inline images and captions in the same editor, configure
+`ImageResize` without `inline` (the default) so that all images are block
+nodes and can be converted into a `figure` with a caption.
+
 ### Additional Setup
 
 Figcaption placeholders are displayed with the help of CSS. Add the following styles to your project. You can customize these styles to match your design:
