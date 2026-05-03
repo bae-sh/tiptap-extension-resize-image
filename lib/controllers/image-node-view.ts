@@ -4,6 +4,7 @@ import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
 import { clampWidth } from '../utils/clamp-width';
 import { sanitizeStyle } from '../utils/style-sanitizer';
+import { subscribeDocumentClick } from '../utils/document-click-manager';
 import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
@@ -20,6 +21,7 @@ export class ImageNodeView {
   protected elements: ImageElements;
   private inline: boolean;
   private resizeLimits: ResizeLimits;
+  private unsubscribeDocumentClick: (() => void) | null = null;
   private handleContainerClick = (): void => {
     const isMobile = utils.isMobile();
     const editorDom = this.context.view.dom as HTMLElement | undefined;
@@ -158,12 +160,13 @@ export class ImageNodeView {
   }
 
   protected setupContentClick(): void {
-    document.addEventListener('click', this.handleDocumentClick);
+    this.unsubscribeDocumentClick = subscribeDocumentClick(this.handleDocumentClick);
   }
 
   protected destroy = (): void => {
     this.elements.container.removeEventListener('click', this.handleContainerClick);
-    document.removeEventListener('click', this.handleDocumentClick);
+    this.unsubscribeDocumentClick?.();
+    this.unsubscribeDocumentClick = null;
     this.removeResizeElements();
   };
 
