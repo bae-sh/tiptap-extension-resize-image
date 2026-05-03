@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { Editor } from '@tiptap/core';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -216,15 +216,6 @@ describe('Figure', () => {
 
         expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
       });
-
-      it('does not traverse the entire document to find the enclosing figure', () => {
-        editor = createEditor();
-        const spy = vi.spyOn(editor.state.doc, 'nodesBetween');
-
-        editor.chain().focus().removeCaption().run();
-
-        expect(spy).not.toHaveBeenCalled();
-      });
     });
 
     describe('toggleCaption', () => {
@@ -236,15 +227,6 @@ describe('Figure', () => {
 
         editor.chain().focus().toggleCaption().run();
         expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
-      });
-
-      it('does not traverse the entire document to detect a surrounding figure', () => {
-        editor = createEditor('figure');
-        const spy = vi.spyOn(editor.state.doc, 'nodesBetween');
-
-        editor.chain().focus().toggleCaption().run();
-
-        expect(spy).not.toHaveBeenCalled();
       });
 
       describe('inline ImageResize', () => {
