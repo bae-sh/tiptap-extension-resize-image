@@ -45,6 +45,11 @@ export const ImageResize = Image.extend<ImageResizeOptions>({
     };
   },
 
+  parseHTML() {
+    // Exclude img inside figure to prevent conflict with Figure node parsing
+    return [{ tag: 'img[src]:not(figure img)' }];
+  },
+
   addNodeView() {
     return ({ node, editor, getPos }) => {
       const { inline, minWidth, maxWidth } = this.options;

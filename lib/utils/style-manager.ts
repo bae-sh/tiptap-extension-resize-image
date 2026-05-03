@@ -9,7 +9,9 @@ export class StyleManager {
   }
 
   static getWrapperStyle(inline: boolean): string {
-    return inline ? 'display: inline-block; float: left; padding-right: 8px;' : 'display: flex';
+    return inline
+      ? 'display: inline-block; float: left; padding-right: 8px;'
+      : 'display: flex; margin: 0;';
   }
 
   static getPositionControllerStyle(inline: boolean): string {
