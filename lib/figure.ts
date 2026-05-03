@@ -1,10 +1,38 @@
 import { mergeAttributes } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { EditorState, NodeSelection } from '@tiptap/pm/state';
 import { ImageResizeOptions, ImageResize } from './image-resize';
 import { StyleManager } from './utils/style-manager';
 import { sanitizeStyle } from './utils/style-sanitizer';
 import { ResizeLimits } from './types';
 import { FigureNodeView } from './controllers/figure-node-view';
+
+/**
+ * Locates the figure node enclosing the current selection in O(depth) by
+ * walking up the resolved selection's parent chain. Also handles the case
+ * where the figure itself is the active NodeSelection. Replaces the prior
+ * full-document `nodesBetween` scan, which was O(N) and ran on every
+ * removeCaption / toggleCaption call.
+ */
+function findEnclosingFigure(
+  state: EditorState
+): { node: ProseMirrorNode; pos: number } | null {
+  const { selection } = state;
+
+  if (selection instanceof NodeSelection && selection.node.type.name === 'figure') {
+    return { node: selection.node, pos: selection.from };
+  }
+
+  const $pos = selection.$from;
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const node = $pos.node(depth);
+    if (node.type.name === 'figure') {
+      return { node, pos: $pos.before(depth) };
+    }
+  }
+
+  return null;
+}
 
 // Figure with caption is a block-level element, so inline option is intentionally omitted
 export interface FigureOptions extends Omit<ImageResizeOptions, 'inline'> {}
@@ -149,26 +177,12 @@ export const Figure = ImageResize.extend<FigureOptions>({
       removeCaption:
         () =>
         ({ state, dispatch }) => {
-          const { selection, schema } = state;
-          const { from } = selection;
-
-          let figurePos: number | undefined;
-          let figureNode: ProseMirrorNode | undefined;
-
-          state.doc.nodesBetween(0, state.doc.content.size, (node, pos) => {
-            if (node.type.name === 'figure') {
-              if (from >= pos && from <= pos + node.nodeSize) {
-                figurePos = pos;
-                figureNode = node;
-              }
-            }
-          });
-
-          if (figurePos === undefined || figureNode === undefined) return false;
+          const found = findEnclosingFigure(state);
+          if (!found) return false;
 
           if (dispatch) {
-            const imageNode = schema.nodes.imageResize.create(figureNode.attrs);
-            dispatch(state.tr.replaceWith(figurePos, figurePos + figureNode.nodeSize, imageNode));
+            const imageNode = state.schema.nodes.imageResize.create(found.node.attrs);
+            dispatch(state.tr.replaceWith(found.pos, found.pos + found.node.nodeSize, imageNode));
           }
 
           return true;
@@ -188,14 +202,7 @@ export const Figure = ImageResize.extend<FigureOptions>({
             return commands.addCaption(caption);
           }
 
-          let isFigure = false;
-          state.doc.nodesBetween(0, state.doc.content.size, (node, pos) => {
-            if (node.type.name === 'figure') {
-              if (from >= pos && from <= pos + node.nodeSize) isFigure = true;
-            }
-          });
-
-          return isFigure ? commands.removeCaption() : false;
+          return findEnclosingFigure(state) ? commands.removeCaption() : false;
         },
     };
   },

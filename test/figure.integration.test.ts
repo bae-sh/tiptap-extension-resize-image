@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Editor } from '@tiptap/core';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -202,6 +202,29 @@ describe('Figure', () => {
         expect(node?.attrs.containerStyle).toBe('width: 320px; height: auto; cursor: pointer;');
         expect(node?.attrs.wrapperStyle).toBe('display: flex; margin: 0;');
       });
+
+      it('works when the figure itself is the active NodeSelection', () => {
+        editor = createEditor();
+
+        let figurePos = -1;
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'figure' && figurePos === -1) figurePos = pos;
+        });
+        editor.commands.setNodeSelection(figurePos);
+
+        editor.chain().focus().removeCaption().run();
+
+        expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
+      });
+
+      it('does not traverse the entire document to find the enclosing figure', () => {
+        editor = createEditor();
+        const spy = vi.spyOn(editor.state.doc, 'nodesBetween');
+
+        editor.chain().focus().removeCaption().run();
+
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
 
     describe('toggleCaption', () => {
@@ -213,6 +236,15 @@ describe('Figure', () => {
 
         editor.chain().focus().toggleCaption().run();
         expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
+      });
+
+      it('does not traverse the entire document to detect a surrounding figure', () => {
+        editor = createEditor('figure');
+        const spy = vi.spyOn(editor.state.doc, 'nodesBetween');
+
+        editor.chain().focus().toggleCaption().run();
+
+        expect(spy).not.toHaveBeenCalled();
       });
 
       describe('inline ImageResize', () => {
