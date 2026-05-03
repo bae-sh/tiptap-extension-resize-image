@@ -1,7 +1,10 @@
+import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
 import { clampWidth } from '../utils/clamp-width';
+import { sanitizeStyle } from '../utils/style-sanitizer';
+import { subscribeDocumentClick } from '../utils/document-click-manager';
 import { ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
@@ -18,6 +21,7 @@ export class ImageNodeView {
   protected elements: ImageElements;
   private inline: boolean;
   private resizeLimits: ResizeLimits;
+  private unsubscribeDocumentClick: (() => void) | null = null;
   private handleContainerClick = (): void => {
     const isMobile = utils.isMobile();
     const editorDom = this.context.view.dom as HTMLElement | undefined;
@@ -26,10 +30,14 @@ export class ImageNodeView {
     this.removeResizeElements();
     this.createPositionController();
 
-    this.elements.container.setAttribute(
-      'style',
-      `position: relative; border: 1px dashed ${CONSTANTS.COLORS.BORDER}; ${this.context.node.attrs.containerStyle}`
-    );
+    // Always re-apply the sanitized container style first so any rules left
+    // over from a previous interaction are cleared, then add the transient
+    // selection border via direct property assignment (not cssText) so it
+    // can never be persisted into the node attrs.
+    const sanitized = sanitizeStyle(this.context.node.attrs.containerStyle);
+    this.elements.container.setAttribute('style', sanitized);
+    this.elements.container.style.position = 'relative';
+    this.elements.container.style.border = `1px dashed ${CONSTANTS.COLORS.BORDER}`;
 
     this.applyResizeLimits();
     this.createResizeHandler();
@@ -69,13 +77,15 @@ export class ImageNodeView {
     const { view, getPos } = this.context;
     if (typeof getPos === 'function') {
       this.clearContainerBorder();
+      const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
+      const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
       const newAttrs = {
         ...this.context.node.attrs,
         width:
-          AttributeParser.extractWidthFromStyle(this.elements.container.style.cssText) ??
+          AttributeParser.extractWidthFromStyle(containerStyle) ??
           this.context.node.attrs.width,
-        containerStyle: `${this.elements.container.style.cssText}`,
-        wrapperStyle: `${this.elements.wrapper.style.cssText}`,
+        containerStyle,
+        wrapperStyle,
       };
       view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
     }
@@ -92,10 +102,10 @@ export class ImageNodeView {
   protected setupDOMStructure(): void {
     const { wrapperStyle, containerStyle } = this.context.node.attrs;
 
-    this.elements.wrapper.setAttribute('style', wrapperStyle);
+    this.elements.wrapper.setAttribute('style', sanitizeStyle(wrapperStyle));
     this.elements.wrapper.appendChild(this.elements.container);
 
-    this.elements.container.setAttribute('style', containerStyle);
+    this.elements.container.setAttribute('style', sanitizeStyle(containerStyle));
     this.elements.container.appendChild(this.elements.img);
   }
 
@@ -150,16 +160,49 @@ export class ImageNodeView {
   }
 
   protected setupContentClick(): void {
-    document.addEventListener('click', this.handleDocumentClick);
+    this.unsubscribeDocumentClick = subscribeDocumentClick(this.handleDocumentClick);
   }
 
   protected destroy = (): void => {
     this.elements.container.removeEventListener('click', this.handleContainerClick);
-    document.removeEventListener('click', this.handleDocumentClick);
+    this.unsubscribeDocumentClick?.();
+    this.unsubscribeDocumentClick = null;
     this.removeResizeElements();
   };
 
-  initialize(): { dom: HTMLElement; destroy?: () => void } {
+  /**
+   * Reuses the existing DOM when ProseMirror replaces the underlying node
+   * (e.g. on resize/alignment commits or external attr updates). Without
+   * this hook ProseMirror would destroy and recreate the NodeView on every
+   * setNodeMarkup, causing the <img> to reload, listeners to be re-bound,
+   * and any open resize UI to vanish mid-interaction.
+   */
+  protected update = (node: ProseMirrorNode): boolean => {
+    if (node.type !== this.context.node.type) return false;
+
+    const prev = this.context.node;
+    this.context.node = node;
+
+    if (prev.attrs.wrapperStyle !== node.attrs.wrapperStyle) {
+      this.elements.wrapper.setAttribute('style', sanitizeStyle(node.attrs.wrapperStyle));
+    }
+    if (prev.attrs.containerStyle !== node.attrs.containerStyle) {
+      this.elements.container.setAttribute('style', sanitizeStyle(node.attrs.containerStyle));
+    }
+
+    const imgAttrChanged =
+      prev.attrs.src !== node.attrs.src ||
+      prev.attrs.alt !== node.attrs.alt ||
+      prev.attrs.title !== node.attrs.title;
+    if (imgAttrChanged || prev.attrs.containerStyle !== node.attrs.containerStyle) {
+      this.setupImageAttributes();
+    }
+
+    this.applyResizeLimits();
+    return true;
+  };
+
+  initialize(): { dom: HTMLElement; update?: (node: ProseMirrorNode) => boolean; destroy?: () => void } {
     this.setupDOMStructure();
     this.setupImageAttributes();
     this.applyResizeLimits();
@@ -172,6 +215,7 @@ export class ImageNodeView {
 
     return {
       dom: this.elements.wrapper,
+      update: this.update,
       destroy: this.destroy,
     };
   }

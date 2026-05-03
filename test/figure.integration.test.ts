@@ -202,6 +202,20 @@ describe('Figure', () => {
         expect(node?.attrs.containerStyle).toBe('width: 320px; height: auto; cursor: pointer;');
         expect(node?.attrs.wrapperStyle).toBe('display: flex; margin: 0;');
       });
+
+      it('works when the figure itself is the active NodeSelection', () => {
+        editor = createEditor();
+
+        let figurePos = -1;
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'figure' && figurePos === -1) figurePos = pos;
+        });
+        editor.commands.setNodeSelection(figurePos);
+
+        editor.chain().focus().removeCaption().run();
+
+        expect(editor.state.doc.firstChild?.type.name).toBe('imageResize');
+      });
     });
 
     describe('toggleCaption', () => {

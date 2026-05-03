@@ -11,6 +11,12 @@ export class ResizeController {
     startX: 0,
     startWidth: 0,
   };
+  // High-frequency pointer events (especially 1000Hz mice) can fire many
+  // times per frame. Coalesce updates through requestAnimationFrame so the
+  // browser only paints once per frame and we avoid forcing layout in the
+  // input handler.
+  private pendingWidth: number | null = null;
+  private rafId: number | null = null;
 
   constructor(
     elements: ImageElements,
@@ -22,6 +28,30 @@ export class ResizeController {
     this.resizeLimits = resizeLimits;
   }
 
+  private scheduleWidthUpdate(width: number): void {
+    this.pendingWidth = width;
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.flushWidth();
+    });
+  }
+
+  private flushWidth(): void {
+    if (this.pendingWidth === null) return;
+    const width = this.pendingWidth;
+    this.pendingWidth = null;
+    this.elements.container.style.width = `${width}px`;
+    this.elements.img.style.width = `${width}px`;
+  }
+
+  private cancelScheduledWidth(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
   private handleMouseMove = (e: MouseEvent, index: number): void => {
     if (!this.state.isResizing) return;
 
@@ -29,14 +59,18 @@ export class ResizeController {
       index % 2 === 0 ? -(e.clientX - this.state.startX) : e.clientX - this.state.startX;
     const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
-    this.elements.container.style.width = newWidth + 'px';
-    this.elements.img.style.width = newWidth + 'px';
+    this.scheduleWidthUpdate(newWidth);
   };
 
   private handleMouseUp = (): void => {
     if (this.state.isResizing) {
       this.state.isResizing = false;
     }
+    // Make sure the final pending width is applied even if no frame ticked
+    // between the last move and release; otherwise the persisted value would
+    // miss the user's last drag delta.
+    this.cancelScheduledWidth();
+    this.flushWidth();
     this.dispatchNodeView();
   };
 
@@ -49,14 +83,15 @@ export class ResizeController {
         : e.touches[0].clientX - this.state.startX;
     const newWidth = clampWidth(this.state.startWidth + deltaX, this.resizeLimits);
 
-    this.elements.container.style.width = newWidth + 'px';
-    this.elements.img.style.width = newWidth + 'px';
+    this.scheduleWidthUpdate(newWidth);
   };
 
   private handleTouchEnd = (): void => {
     if (this.state.isResizing) {
       this.state.isResizing = false;
     }
+    this.cancelScheduledWidth();
+    this.flushWidth();
     this.dispatchNodeView();
   };
 

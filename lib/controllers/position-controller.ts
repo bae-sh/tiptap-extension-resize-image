@@ -32,40 +32,39 @@ export class PositionController {
     return controller;
   }
 
+  // Setting individual style properties via the CSSStyleDeclaration API lets
+  // the browser validate each value, and avoids the unbounded cssText growth
+  // (and CSS injection surface) that arose from concatenating style strings.
   private handleLeftClick(): void {
     if (!this.inline) {
-      this.elements.container.setAttribute(
-        'style',
-        `${this.elements.container.style.cssText} margin: 0 auto 0 0;`
-      );
+      this.elements.container.style.margin = '0 auto 0 0';
     } else {
-      const style = 'display: inline-block; float: left; padding-right: 8px;';
-      this.elements.wrapper.setAttribute('style', style);
-      this.elements.container.setAttribute('style', style);
+      this.applyInlineFloat('left');
     }
     this.dispatchNodeView();
   }
 
   private handleCenterClick(): void {
-    this.elements.container.setAttribute(
-      'style',
-      `${this.elements.container.style.cssText} margin: 0 auto;`
-    );
+    this.elements.container.style.margin = '0 auto';
     this.dispatchNodeView();
   }
 
   private handleRightClick(): void {
     if (!this.inline) {
-      this.elements.container.setAttribute(
-        'style',
-        `${this.elements.container.style.cssText} margin: 0 0 0 auto;`
-      );
+      this.elements.container.style.margin = '0 0 0 auto';
     } else {
-      const style = 'display: inline-block; float: right; padding-left: 8px;';
-      this.elements.wrapper.setAttribute('style', style);
-      this.elements.container.setAttribute('style', style);
+      this.applyInlineFloat('right');
     }
     this.dispatchNodeView();
+  }
+
+  private applyInlineFloat(side: 'left' | 'right'): void {
+    for (const el of [this.elements.wrapper, this.elements.container]) {
+      el.style.display = 'inline-block';
+      el.style.float = side;
+      el.style.paddingLeft = side === 'right' ? '8px' : '';
+      el.style.paddingRight = side === 'left' ? '8px' : '';
+    }
   }
 
   createPositionControls(): PositionController {

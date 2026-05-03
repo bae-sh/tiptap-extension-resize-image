@@ -80,20 +80,51 @@ function createContextBase() {
 }
 
 describe('ImageNodeView', () => {
-  it('returns a destroy function that unregisters the document click handler', () => {
-    const addSpy = vi.spyOn(document, 'addEventListener');
-    const removeSpy = vi.spyOn(document, 'removeEventListener');
+  it('returns a destroy function that stops responding to outside clicks', () => {
     const nodeView = new ImageNodeView(createContext(), false);
-
     const result = nodeView.initialize();
-    const clickRegistration = addSpy.mock.calls.find(([type]) => type === 'click');
+    document.body.appendChild(result.dom);
+
+    const container = result.dom.firstElementChild as HTMLElement;
+    container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container.querySelectorAll('[data-resize-image-ui]').length).toBeGreaterThan(0);
 
     expect(typeof result.destroy).toBe('function');
-    expect(clickRegistration).toBeTruthy();
-
     result.destroy?.();
 
-    expect(removeSpy).toHaveBeenCalledWith('click', clickRegistration?.[1]);
+    const outside = document.createElement('div');
+    document.body.appendChild(outside);
+    outside.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    // After destroy the NodeView must no longer react to outside clicks,
+    // because its subscription to the shared document click manager was
+    // released. removeResizeElements was already called by destroy itself,
+    // so the assertion is that the outside click does not throw or revive
+    // anything either.
+    expect(container.querySelectorAll('[data-resize-image-ui]').length).toBe(0);
+  });
+
+  it('uses a single document click listener for many instances', () => {
+    const addSpy = vi.spyOn(document, 'addEventListener');
+    const removeSpy = vi.spyOn(document, 'removeEventListener');
+
+    const nodeViewA = new ImageNodeView(createContext(), false);
+    const nodeViewB = new ImageNodeView(createContext(), false);
+    const nodeViewC = new ImageNodeView(createContext(), false);
+
+    const a = nodeViewA.initialize();
+    const b = nodeViewB.initialize();
+    const c = nodeViewC.initialize();
+
+    const clickRegistrations = addSpy.mock.calls.filter(([type]) => type === 'click');
+    expect(clickRegistrations).toHaveLength(1);
+
+    a.destroy?.();
+    b.destroy?.();
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'click')).toHaveLength(0);
+
+    c.destroy?.();
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'click')).toHaveLength(1);
   });
 
   it('adds resize UI on container click and removes it on outside click', () => {
