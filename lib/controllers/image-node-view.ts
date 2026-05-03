@@ -1,3 +1,4 @@
+import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { CONSTANTS } from '../constants';
 import { utils } from '../utils';
 import { AttributeParser } from '../utils/attribute-parser';
@@ -166,7 +167,39 @@ export class ImageNodeView {
     this.removeResizeElements();
   };
 
-  initialize(): { dom: HTMLElement; destroy?: () => void } {
+  /**
+   * Reuses the existing DOM when ProseMirror replaces the underlying node
+   * (e.g. on resize/alignment commits or external attr updates). Without
+   * this hook ProseMirror would destroy and recreate the NodeView on every
+   * setNodeMarkup, causing the <img> to reload, listeners to be re-bound,
+   * and any open resize UI to vanish mid-interaction.
+   */
+  protected update = (node: ProseMirrorNode): boolean => {
+    if (node.type !== this.context.node.type) return false;
+
+    const prev = this.context.node;
+    this.context.node = node;
+
+    if (prev.attrs.wrapperStyle !== node.attrs.wrapperStyle) {
+      this.elements.wrapper.setAttribute('style', sanitizeStyle(node.attrs.wrapperStyle));
+    }
+    if (prev.attrs.containerStyle !== node.attrs.containerStyle) {
+      this.elements.container.setAttribute('style', sanitizeStyle(node.attrs.containerStyle));
+    }
+
+    const imgAttrChanged =
+      prev.attrs.src !== node.attrs.src ||
+      prev.attrs.alt !== node.attrs.alt ||
+      prev.attrs.title !== node.attrs.title;
+    if (imgAttrChanged || prev.attrs.containerStyle !== node.attrs.containerStyle) {
+      this.setupImageAttributes();
+    }
+
+    this.applyResizeLimits();
+    return true;
+  };
+
+  initialize(): { dom: HTMLElement; update?: (node: ProseMirrorNode) => boolean; destroy?: () => void } {
     this.setupDOMStructure();
     this.setupImageAttributes();
     this.applyResizeLimits();
@@ -179,6 +212,7 @@ export class ImageNodeView {
 
     return {
       dom: this.elements.wrapper,
+      update: this.update,
       destroy: this.destroy,
     };
   }

@@ -81,7 +81,7 @@ export class FigureNodeView extends ImageNodeView {
 
   // Updates the DOM when the node's attrs change.
   // Returns false if the node type has changed to trigger a full re-render
-  private update = (node: ProseMirrorNode): boolean => {
+  protected override update = (node: ProseMirrorNode): boolean => {
     if (node.type !== this.context.node.type) return false;
 
     this.context.node = node;
