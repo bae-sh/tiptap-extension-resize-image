@@ -1,4 +1,5 @@
 import Image, { ImageOptions } from '@tiptap/extension-image';
+import { NodeConfig } from '@tiptap/core';
 import { StyleManager } from './utils/style-manager';
 import { sanitizeStyle } from './utils/style-sanitizer';
 import { ImageNodeView } from './controllers/image-node-view';
@@ -10,7 +11,7 @@ export interface ImageResizeOptions extends ImageOptions {
   maxWidth?: number;
 }
 
-export const ImageResize = Image.extend<ImageResizeOptions>({
+export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
   name: 'imageResize',
 
   addOptions() {
@@ -70,4 +71,6 @@ export const ImageResize = Image.extend<ImageResizeOptions>({
       return nodeView.initialize();
     };
   },
-});
+};
+
+export const ImageResize = Image.extend<ImageResizeOptions>(imageResizeConfig);
