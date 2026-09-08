@@ -22,6 +22,14 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org/
           cache: yarn
+        # registry-url makes setup-node write an .npmrc containing
+        # _authToken=${NODE_AUTH_TOKEN}. Since v7 that file is written before the
+        # `cache: yarn` restore, so setup-node's own `yarn cache dir` call reads it
+        # and yarn 1.x aborts on the unresolvable variable. Publishing here uses
+        # OIDC trusted publishing, so no token exists; define it as empty for this
+        # step only. npm tolerates the unresolved value at publish time.
+        env:
+          NODE_AUTH_TOKEN: ''
       - run: yarn install --frozen-lockfile
       - run: yarn test
       - run: yarn build
