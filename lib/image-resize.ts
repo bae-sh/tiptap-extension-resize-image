@@ -1,4 +1,4 @@
-import Image, { ImageOptions } from '@tiptap/extension-image';
+import { Image, ImageOptions } from '@tiptap/extension-image';
 import { NodeConfig } from '@tiptap/core';
 import { StyleManager } from './utils/style-manager';
 import { sanitizeStyle } from './utils/style-sanitizer';
