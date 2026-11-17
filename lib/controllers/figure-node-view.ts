@@ -18,9 +18,7 @@ export class FigureNodeView extends ImageNodeView {
       const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
       const newAttrs = {
         ...this.context.node.attrs,
-        width:
-          AttributeParser.extractWidthFromStyle(containerStyle) ??
-          this.context.node.attrs.width,
+        ...AttributeParser.getResizedSize(this.context.node.attrs, containerStyle),
         containerStyle,
         wrapperStyle,
       };

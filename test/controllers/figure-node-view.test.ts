@@ -216,7 +216,7 @@ describe('FigureNodeView', () => {
         5,
         null,
         expect.objectContaining({
-          width: '320',
+          width: 320,
           wrapperStyle: 'display: flex; margin: 0px;',
         })
       );
