@@ -24,6 +24,8 @@ export class ImageNodeView {
   private alignControls: AlignControlOptions;
   private unsubscribeDocumentClick: (() => void) | null = null;
   private handleContainerClick = (): void => {
+    if (!this.context.editor.isEditable) return;
+
     const isMobile = utils.isMobile();
     const editorDom = this.context.view.dom as HTMLElement | undefined;
     isMobile && editorDom?.blur();
@@ -49,10 +51,11 @@ export class ImageNodeView {
       !!target &&
       (this.elements.container.contains(target) || !!target.closest('[data-resize-image-ui]'));
 
-    if (!isClickInside) {
-      this.clearContainerBorder();
-      this.removeResizeElements();
-    }
+    if (!isClickInside) this.hideResizeUi();
+  };
+  // setEditable() does not recreate node views, so hide any open resize UI here.
+  private handleEditorUpdate = (): void => {
+    if (!this.context.editor.isEditable) this.hideResizeUi();
   };
 
   constructor(
@@ -83,7 +86,7 @@ export class ImageNodeView {
   protected dispatchNodeView = (): void => {
     const { view, getPos } = this.context;
     const pos = getPos?.();
-    if (pos !== undefined) {
+    if (pos !== undefined && this.context.editor.isEditable) {
       this.clearContainerBorder();
       const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
       const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
@@ -100,6 +103,11 @@ export class ImageNodeView {
   private removeResizeElements = (): void => {
     utils.removeResizeElements(this.elements.container);
   };
+
+  private hideResizeUi(): void {
+    this.clearContainerBorder();
+    this.removeResizeElements();
+  }
 
   protected setupImageAttributes(): void {
     AttributeParser.parseImageAttributes(this.context.node.attrs, this.elements.img);
@@ -168,10 +176,12 @@ export class ImageNodeView {
 
   protected setupContentClick(): void {
     this.unsubscribeDocumentClick = subscribeDocumentClick(this.handleDocumentClick);
+    this.context.editor.on('update', this.handleEditorUpdate);
   }
 
   protected destroy = (): void => {
     this.elements.container.removeEventListener('click', this.handleContainerClick);
+    this.context.editor.off('update', this.handleEditorUpdate);
     this.unsubscribeDocumentClick?.();
     this.unsubscribeDocumentClick = null;
     this.removeResizeElements();
@@ -214,14 +224,14 @@ export class ImageNodeView {
     this.setupImageAttributes();
     this.applyResizeLimits();
 
-    const { editable } = this.context.editor.options;
-    if (!editable) return { dom: this.elements.container };
-
     this.setupContainerClick();
     this.setupContentClick();
 
+    // Keep the read-only DOM shape chosen at creation. setEditable() later only
+    // changes whether clicks open the resize UI.
+    const { editable } = this.context.editor.options;
     return {
-      dom: this.elements.wrapper,
+      dom: editable ? this.elements.wrapper : this.elements.container,
       update: this.update,
       destroy: this.destroy,
     };

@@ -11,7 +11,7 @@ export class FigureNodeView extends ImageNodeView {
     const { view, getPos } = this.context;
     const pos = getPos?.();
 
-    if (pos !== undefined) {
+    if (pos !== undefined && this.context.editor.isEditable) {
       this.clearContainerBorder();
 
       const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
@@ -38,6 +38,7 @@ export class FigureNodeView extends ImageNodeView {
 
   private handleNodeSelection = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
+    if (!this.context.editor.isEditable) return;
     if (!this.elements.img.contains(target) && target !== this.elements.img) return;
 
     const { view, getPos } = this.context;
@@ -53,7 +54,7 @@ export class FigureNodeView extends ImageNodeView {
   }
 
   private handleDragStart = (event: DragEvent) => {
-    if (!event.dataTransfer) return;
+    if (!event.dataTransfer || !this.context.editor.isEditable) return;
 
     const { view, getPos } = this.context;
     const pos = getPos?.();
@@ -104,9 +105,6 @@ export class FigureNodeView extends ImageNodeView {
     const figcaption = document.createElement('div');
     figcaption.setAttribute('style', 'display: contents;');
     this.elements.container.appendChild(figcaption);
-
-    const { editable } = this.context.editor.options;
-    if (!editable) return { dom: this.elements.wrapper, contentDOM: figcaption };
 
     this.setupContainerClick();
     this.setupContentClick();
