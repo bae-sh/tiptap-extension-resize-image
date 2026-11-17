@@ -138,4 +138,28 @@ describe('ResizeController', () => {
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(cancelSpy).toHaveBeenCalled();
   });
+
+  it.each([
+    ['selection border', { border: 2, padding: 0 }],
+    ['selection border and inline padding', { border: 2, padding: 8 }],
+  ])('starts from the image width, not the container box (%s)', (_, box) => {
+    const elements = createElements();
+    const controller = new ResizeController(elements, vi.fn());
+    const handle = controller.createResizeHandle(3);
+    elements.container.appendChild(handle);
+    elements.container.style.width = '200px';
+    // Browser layout: offsetWidth includes the container's border and padding.
+    Object.defineProperty(elements.container, 'offsetWidth', {
+      value: 200 + box.border + box.padding,
+      configurable: true,
+    });
+    Object.defineProperty(elements.img, 'offsetWidth', { value: 200, configurable: true });
+
+    handle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 100 }));
+    document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 101 }));
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    expect(elements.container.style.width).toBe('201px');
+    expect(elements.img.style.width).toBe('201px');
+  });
 });
