@@ -9,8 +9,9 @@ export class FigureNodeView extends ImageNodeView {
   // Overrides dispatchNodeView to preserve NodeSelection after setNodeMarkup
   protected override dispatchNodeView = (): void => {
     const { view, getPos } = this.context;
+    const pos = getPos?.();
 
-    if (typeof getPos === 'function') {
+    if (pos !== undefined) {
       this.clearContainerBorder();
 
       const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
@@ -26,7 +27,7 @@ export class FigureNodeView extends ImageNodeView {
 
       // setNodeMarkup causes the current NodeSelection to fall back to TextSelection inside the figcaption
       // Manually recreate NodeSelection at the same position to preserve it
-      const tr = view.state.tr.setNodeMarkup(getPos(), null, newAttrs);
+      const tr = view.state.tr.setNodeMarkup(pos, null, newAttrs);
       const { selection } = view.state;
       const newSelection =
         selection instanceof NodeSelection
@@ -42,8 +43,8 @@ export class FigureNodeView extends ImageNodeView {
     if (!this.elements.img.contains(target) && target !== this.elements.img) return;
 
     const { view, getPos } = this.context;
-    if (typeof getPos === 'function') {
-      const pos = getPos();
+    const pos = getPos?.();
+    if (pos !== undefined) {
       view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
     }
   };
@@ -57,9 +58,9 @@ export class FigureNodeView extends ImageNodeView {
     if (!event.dataTransfer) return;
 
     const { view, getPos } = this.context;
-    if (typeof getPos !== 'function') return;
+    const pos = getPos?.();
+    if (pos === undefined) return;
 
-    const pos = getPos();
     const node = view.state.doc.nodeAt(pos);
     if (!node) return;
 

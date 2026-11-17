@@ -13,7 +13,7 @@ interface NodeViewContext {
   node: any;
   editor: any;
   view: any;
-  getPos: (() => number) | undefined;
+  getPos: (() => number | undefined) | undefined;
 }
 
 export class ImageNodeView {
@@ -75,7 +75,8 @@ export class ImageNodeView {
 
   protected dispatchNodeView = (): void => {
     const { view, getPos } = this.context;
-    if (typeof getPos === 'function') {
+    const pos = getPos?.();
+    if (pos !== undefined) {
       this.clearContainerBorder();
       const containerStyle = sanitizeStyle(this.elements.container.style.cssText);
       const wrapperStyle = sanitizeStyle(this.elements.wrapper.style.cssText);
@@ -87,7 +88,7 @@ export class ImageNodeView {
         containerStyle,
         wrapperStyle,
       };
-      view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, newAttrs));
+      view.dispatch(view.state.tr.setNodeMarkup(pos, null, newAttrs));
     }
   };
 
