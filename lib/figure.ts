@@ -1,4 +1,4 @@
-import { mergeAttributes } from '@tiptap/core';
+import { fromString, mergeAttributes } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { EditorState, NodeSelection } from '@tiptap/pm/state';
 import { ImageResizeOptions, ImageResize } from './image-resize';
@@ -65,7 +65,19 @@ export const Figure = ImageResize.extend<FigureOptions>({
   },
 
   addAttributes() {
+    // Tiptap 3's Image has width/height. Keep them so removeCaption() can restore them.
+    const fromImg = (name: string) => ({
+      default: null,
+      parseHTML: (element: HTMLElement) =>
+        fromString(element.querySelector('img')?.getAttribute(name)) ?? null,
+    });
+    const size =
+      'height' in (this.parent?.() ?? {})
+        ? { width: fromImg('width'), height: fromImg('height') }
+        : {};
+
     return {
+      ...size,
       src: {
         default: null,
         parseHTML: (element) => element.querySelector('img')?.getAttribute('src'),
