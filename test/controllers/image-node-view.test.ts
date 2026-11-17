@@ -137,7 +137,7 @@ describe('ImageNodeView', () => {
     expect(container.querySelectorAll('[data-resize-image-ui]').length).toBe(0);
 
     container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(container.querySelectorAll('[data-resize-image-ui]').length).toBe(5);
+    expect(container.querySelectorAll(':scope > [data-resize-image-ui]').length).toBe(5);
 
     const outside = document.createElement('div');
     document.body.appendChild(outside);

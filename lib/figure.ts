@@ -119,7 +119,7 @@ export const Figure = ImageResize.extend<FigureOptions>({
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const { minWidth, maxWidth } = this.options;
+      const { minWidth, maxWidth, alignIcons, unstyledControls } = this.options;
       const resizeLimits: ResizeLimits = { minWidth, maxWidth };
       const context = {
         node,
@@ -128,7 +128,10 @@ export const Figure = ImageResize.extend<FigureOptions>({
         getPos: typeof getPos === 'function' ? getPos : undefined,
       };
 
-      const nodeView = new FigureNodeView(context, false, resizeLimits);
+      const nodeView = new FigureNodeView(context, false, resizeLimits, {
+        icons: alignIcons,
+        unstyled: unstyledControls,
+      });
       return nodeView.initializeFigure();
     };
   },

@@ -87,11 +87,58 @@ ImageResize.configure({ minWidth: 100, maxWidth: 800 });
 
 ## Options
 
-| Option     | Type      | Default     | Description                                     |
-| ---------- | --------- | ----------- | ----------------------------------------------- |
-| `inline`   | `boolean` | `false`     | Render images as inline elements                |
-| `minWidth` | `number`  | `undefined` | Minimum width in pixels (cannot resize smaller) |
-| `maxWidth` | `number`  | `undefined` | Maximum width in pixels (cannot resize larger)  |
+| Option             | Type                                                 | Default     | Description                                                                                  |
+| ------------------ | ---------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------- |
+| `inline`           | `boolean`                                            | `false`     | Render images as inline elements                                                             |
+| `minWidth`         | `number`                                             | `undefined` | Minimum width in pixels (cannot resize smaller)                                              |
+| `maxWidth`         | `number`                                             | `undefined` | Maximum width in pixels (cannot resize larger)                                               |
+| `alignIcons`       | `{ left?: string; center?: string; right?: string }` | `undefined` | Image URLs for the alignment buttons. Missing entries keep the default icon                  |
+| `unstyledControls` | `boolean`                                            | `false`     | Render the alignment controls without inline styles, so you can style them with your own CSS |
+
+<br/>
+
+## Customizing the alignment controls
+
+Use `alignIcons` to replace the alignment button icons. Each value is an image URL, so a data URL also works.
+
+```js
+ImageResize.configure({
+  alignIcons: {
+    left: '/icons/align-left.svg',
+    center: '/icons/align-center.svg',
+    right: '/icons/align-right.svg',
+  },
+});
+```
+
+By default, the controls use inline styles, which a stylesheet can only override with `!important`. Set `unstyledControls: true` to render them without inline styles and style them with your own CSS:
+
+```js
+ImageResize.configure({ unstyledControls: true });
+```
+
+```css
+[data-resize-image-ui='position-controller'] {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+[data-resize-image-ui='position-button'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+[data-resize-image-ui='position-button'][data-align='center'] {
+  /* style a single button */
+}
+```
+
+`unstyledControls` only affects the alignment controls. The resize handles keep their default styles. `Figure` accepts the same two options.
 
 <br/>
 

@@ -1,21 +1,38 @@
 import { CONSTANTS } from '../constants';
-import { ImageElements } from '../types';
+import { AlignControlOptions, Alignment, ImageElements } from '../types';
 import { StyleManager } from '../utils/style-manager';
+
+const DEFAULT_ICONS: Record<Alignment, string> = {
+  left: CONSTANTS.ICONS.LEFT,
+  center: CONSTANTS.ICONS.CENTER,
+  right: CONSTANTS.ICONS.RIGHT,
+};
 
 export class PositionController {
   private elements: ImageElements;
   private inline: boolean;
   private dispatchNodeView: () => void;
+  private options: AlignControlOptions;
 
-  constructor(elements: ImageElements, inline: boolean, dispatchNodeView: () => void) {
+  constructor(
+    elements: ImageElements,
+    inline: boolean,
+    dispatchNodeView: () => void,
+    options: AlignControlOptions = {}
+  ) {
     this.elements = elements;
     this.inline = inline;
     this.dispatchNodeView = dispatchNodeView;
+    this.options = options;
   }
 
-  private createControllerIcon(src: string): HTMLElement {
+  private createControllerIcon(align: Alignment): HTMLElement {
     const controller = document.createElement('img');
-    controller.setAttribute('src', src);
+    controller.dataset.resizeImageUi = 'position-button';
+    controller.dataset.align = align;
+    controller.setAttribute('src', this.options.icons?.[align] ?? DEFAULT_ICONS[align]);
+    if (this.options.unstyled) return controller;
+
     controller.setAttribute(
       'style',
       `width: ${CONSTANTS.ICON_SIZE}; height: ${CONSTANTS.ICON_SIZE}; cursor: pointer;`
@@ -70,19 +87,21 @@ export class PositionController {
   createPositionControls(): PositionController {
     const controller = document.createElement('div');
     controller.dataset.resizeImageUi = 'position-controller';
-    controller.setAttribute('style', StyleManager.getPositionControllerStyle(this.inline));
+    if (!this.options.unstyled) {
+      controller.setAttribute('style', StyleManager.getPositionControllerStyle(this.inline));
+    }
 
-    const leftController = this.createControllerIcon(CONSTANTS.ICONS.LEFT);
+    const leftController = this.createControllerIcon('left');
     leftController.addEventListener('click', () => this.handleLeftClick());
     controller.appendChild(leftController);
 
     if (!this.inline) {
-      const centerController = this.createControllerIcon(CONSTANTS.ICONS.CENTER);
+      const centerController = this.createControllerIcon('center');
       centerController.addEventListener('click', () => this.handleCenterClick());
       controller.appendChild(centerController);
     }
 
-    const rightController = this.createControllerIcon(CONSTANTS.ICONS.RIGHT);
+    const rightController = this.createControllerIcon('right');
     rightController.addEventListener('click', () => this.handleRightClick());
     controller.appendChild(rightController);
 
