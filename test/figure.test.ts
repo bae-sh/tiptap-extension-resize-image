@@ -47,7 +47,8 @@ describe('Figure', () => {
     expect(figureNodeViewConstructor).toHaveBeenCalledWith(
       { node, editor, view: editor.view, getPos },
       false,
-      { minWidth: 120, maxWidth: 480 }
+      { minWidth: 120, maxWidth: 480 },
+      { icons: undefined, unstyled: false }
     );
 
     expect(result).toBe(initializeFigureResult);
@@ -70,7 +71,8 @@ describe('Figure', () => {
     expect(figureNodeViewConstructor).toHaveBeenLastCalledWith(
       { node, editor, view: editor.view, getPos: undefined },
       false,
-      { minWidth: undefined, maxWidth: undefined }
+      { minWidth: undefined, maxWidth: undefined },
+      { icons: undefined, unstyled: false }
     );
   });
 });

@@ -9,6 +9,15 @@ export interface ResizeLimits {
   maxWidth?: number;
 }
 
+export type Alignment = 'left' | 'center' | 'right';
+
+export type AlignIcons = Partial<Record<Alignment, string>>;
+
+export interface AlignControlOptions {
+  icons?: AlignIcons;
+  unstyled?: boolean;
+}
+
 export interface PositionController {
   element: HTMLElement;
   leftController: HTMLElement;

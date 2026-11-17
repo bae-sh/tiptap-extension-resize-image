@@ -117,7 +117,7 @@ describe('FigureNodeView', () => {
       const container = dom.firstElementChild as HTMLElement;
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-      expect(container.querySelectorAll('[data-resize-image-ui]').length).toBe(5);
+      expect(container.querySelectorAll(':scope > [data-resize-image-ui]').length).toBe(5);
     });
 
     it('removes resize UI when clicking outside the container', () => {

@@ -5,7 +5,7 @@ import { AttributeParser } from '../utils/attribute-parser';
 import { clampWidth } from '../utils/clamp-width';
 import { sanitizeStyle } from '../utils/style-sanitizer';
 import { subscribeDocumentClick } from '../utils/document-click-manager';
-import { ImageElements, ResizeLimits } from '../types';
+import { AlignControlOptions, ImageElements, ResizeLimits } from '../types';
 import { PositionController } from './position-controller';
 import { ResizeController } from './resize-controller';
 
@@ -21,6 +21,7 @@ export class ImageNodeView {
   protected elements: ImageElements;
   private inline: boolean;
   private resizeLimits: ResizeLimits;
+  private alignControls: AlignControlOptions;
   private unsubscribeDocumentClick: (() => void) | null = null;
   private handleContainerClick = (): void => {
     const isMobile = utils.isMobile();
@@ -54,10 +55,16 @@ export class ImageNodeView {
     }
   };
 
-  constructor(context: NodeViewContext, inline: boolean, resizeLimits: ResizeLimits = {}) {
+  constructor(
+    context: NodeViewContext,
+    inline: boolean,
+    resizeLimits: ResizeLimits = {},
+    alignControls: AlignControlOptions = {}
+  ) {
     this.context = context;
     this.inline = inline;
     this.resizeLimits = resizeLimits;
+    this.alignControls = alignControls;
     this.elements = this.createElements();
   }
 
@@ -136,7 +143,8 @@ export class ImageNodeView {
     const positionController = new PositionController(
       this.elements,
       this.inline,
-      this.dispatchNodeView
+      this.dispatchNodeView,
+      this.alignControls
     );
     positionController.createPositionControls();
   }

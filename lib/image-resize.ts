@@ -3,12 +3,14 @@ import { NodeConfig } from '@tiptap/core';
 import { StyleManager } from './utils/style-manager';
 import { sanitizeStyle } from './utils/style-sanitizer';
 import { ImageNodeView } from './controllers/image-node-view';
-import { ResizeLimits } from './types';
+import { AlignIcons, ResizeLimits } from './types';
 
 export interface ImageResizeOptions extends ImageOptions {
   inline: boolean;
   minWidth?: number;
   maxWidth?: number;
+  alignIcons?: AlignIcons;
+  unstyledControls?: boolean;
 }
 
 export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
@@ -20,6 +22,8 @@ export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
       inline: false,
       minWidth: undefined,
       maxWidth: undefined,
+      alignIcons: undefined,
+      unstyledControls: false,
     };
   },
 
@@ -58,7 +62,7 @@ export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const { inline, minWidth, maxWidth } = this.options;
+      const { inline, minWidth, maxWidth, alignIcons, unstyledControls } = this.options;
       const context = {
         node,
         editor,
@@ -67,7 +71,10 @@ export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
       };
 
       const resizeLimits: ResizeLimits = { minWidth, maxWidth };
-      const nodeView = new ImageNodeView(context, inline, resizeLimits);
+      const nodeView = new ImageNodeView(context, inline, resizeLimits, {
+        icons: alignIcons,
+        unstyled: unstyledControls,
+      });
       return nodeView.initialize();
     };
   },

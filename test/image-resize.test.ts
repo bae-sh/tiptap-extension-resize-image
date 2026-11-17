@@ -56,7 +56,8 @@ describe('ImageResize', () => {
         getPos,
       },
       true,
-      { minWidth: 120, maxWidth: 480 }
+      { minWidth: 120, maxWidth: 480 },
+      { icons: undefined, unstyled: false }
     );
     expect(result).toBe(initializeResult);
   });
@@ -86,7 +87,8 @@ describe('ImageResize', () => {
         getPos: undefined,
       },
       false,
-      { minWidth: undefined, maxWidth: undefined }
+      { minWidth: undefined, maxWidth: undefined },
+      { icons: undefined, unstyled: false }
     );
   });
 });
