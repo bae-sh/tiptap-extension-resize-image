@@ -25,7 +25,7 @@ describe('ResizeController', () => {
     const controller = new ResizeController(elements, dispatch, { minWidth: 100, maxWidth: 260 });
     const handle = controller.createResizeHandle(1);
 
-    Object.defineProperty(elements.container, 'offsetWidth', {
+    Object.defineProperty(elements.img, 'offsetWidth', {
       value: 200,
       configurable: true,
     });
@@ -48,7 +48,7 @@ describe('ResizeController', () => {
     const controller = new ResizeController(elements, dispatch, { minWidth: 100, maxWidth: 260 });
     const handle = controller.createResizeHandle(1);
 
-    Object.defineProperty(elements.container, 'offsetWidth', {
+    Object.defineProperty(elements.img, 'offsetWidth', {
       value: 180,
       configurable: true,
     });
@@ -76,7 +76,7 @@ describe('ResizeController', () => {
     const controller = new ResizeController(elements, dispatch, { minWidth: 50, maxWidth: 1000 });
     const handle = controller.createResizeHandle(1);
 
-    Object.defineProperty(elements.container, 'offsetWidth', {
+    Object.defineProperty(elements.img, 'offsetWidth', {
       value: 200,
       configurable: true,
     });
@@ -120,7 +120,7 @@ describe('ResizeController', () => {
     const controller = new ResizeController(elements, dispatch, { minWidth: 50, maxWidth: 1000 });
     const handle = controller.createResizeHandle(1);
 
-    Object.defineProperty(elements.container, 'offsetWidth', {
+    Object.defineProperty(elements.img, 'offsetWidth', {
       value: 200,
       configurable: true,
     });

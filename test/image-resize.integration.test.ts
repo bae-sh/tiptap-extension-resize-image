@@ -122,7 +122,10 @@ describe.runIf(hasSizeAttrs)('ImageResize width and height attributes', () => {
 
     const container = dom.querySelector('img')!.parentElement as HTMLElement;
     container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    Object.defineProperty(container, 'offsetWidth', { value: 400, configurable: true });
+    Object.defineProperty(dom.querySelector('img')!, 'offsetWidth', {
+      value: 400,
+      configurable: true,
+    });
 
     // Dispatch on the handle only, so ProseMirror's mousedown handler does not run in jsdom.
     const handle = container.querySelector('[data-resize-image-ui="resize-handle"]') as HTMLElement;

@@ -104,7 +104,7 @@ export class ResizeController {
       e.preventDefault();
       this.state.isResizing = true;
       this.state.startX = e.clientX;
-      this.state.startWidth = this.elements.container.offsetWidth;
+      this.state.startWidth = this.elements.img.offsetWidth;
 
       const onMouseMove = (e: MouseEvent) => this.handleMouseMove(e, index);
       const onMouseUp = () => {
@@ -123,7 +123,7 @@ export class ResizeController {
         e.cancelable && e.preventDefault();
         this.state.isResizing = true;
         this.state.startX = e.touches[0].clientX;
-        this.state.startWidth = this.elements.container.offsetWidth;
+        this.state.startWidth = this.elements.img.offsetWidth;
 
         const onTouchMove = (e: TouchEvent) => this.handleTouchMove(e, index);
         const onTouchEnd = () => {
