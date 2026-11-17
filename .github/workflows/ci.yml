@@ -22,3 +22,20 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn test
       - run: yarn build
+
+  test-tiptap-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      # peerDependencies accept Tiptap ^2, so check the source against it too.
+      - run: >
+          yarn add --dev
+          @tiptap/core@^2 @tiptap/pm@^2 @tiptap/extension-image@^2
+          @tiptap/extension-document@^2 @tiptap/extension-paragraph@^2 @tiptap/extension-text@^2
+      - run: yarn test
+      - run: yarn build:tsc
