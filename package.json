@@ -56,7 +56,7 @@
     "rollup": "^4.8.0",
     "tslib": "^2.6.2",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.5"
+    "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@tiptap/core": "^2.0.0 || ^3.0.0",
