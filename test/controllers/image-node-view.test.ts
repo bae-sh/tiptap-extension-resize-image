@@ -36,6 +36,11 @@ function createContext(overrides?: TestContextOverrides) {
         ...base.editor.options,
         ...overrides?.editor?.options,
       },
+      get isEditable() {
+        return this.options.editable;
+      },
+      on: vi.fn(),
+      off: vi.fn(),
     },
     view: {
       ...base.view,
@@ -176,7 +181,6 @@ describe('ImageNodeView', () => {
 
     const result = nodeView.initialize();
 
-    expect(result.destroy).toBeUndefined();
     expect(result.dom.tagName).toBe('DIV');
     expect(result.dom.firstElementChild?.tagName).toBe('IMG');
   });

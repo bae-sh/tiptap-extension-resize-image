@@ -38,6 +38,11 @@ function createContext(overrides?: TestContextOverrides) {
         ...base.editor.options,
         ...overrides?.editor?.options,
       },
+      get isEditable() {
+        return this.options.editable;
+      },
+      on: vi.fn(),
+      off: vi.fn(),
     },
     view: {
       ...base.view,
@@ -86,7 +91,7 @@ function createContextBase() {
 
 describe('FigureNodeView', () => {
   describe('Rendering', () => {
-    it('renders a simplified static structure in read-only mode', () => {
+    it('renders the same structure in read-only mode', () => {
       const figureNodeView = new FigureNodeView(
         createContext({ editor: { options: { editable: false } } }),
         false
@@ -95,7 +100,6 @@ describe('FigureNodeView', () => {
       const result = figureNodeView.initializeFigure();
       const dom = result.dom as HTMLElement;
 
-      expect(result.destroy).toBeUndefined();
       expect(dom.tagName).toBe('FIGURE');
       expect(dom.firstElementChild?.tagName).toBe('DIV');
       expect(dom.firstElementChild?.firstElementChild?.tagName).toBe('IMG');
