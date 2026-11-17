@@ -4,7 +4,14 @@ export default [
   {
     input: 'lib/index.ts',
     output: [
-      { dir: 'dist', format: 'cjs', sourcemap: true, exports: 'named' },
+      {
+        dir: 'dist',
+        format: 'cjs',
+        sourcemap: true,
+        exports: 'named',
+        entryFileNames: '[name].cjs',
+        interop: 'auto',
+      },
       { dir: 'esm', format: 'esm', sourcemap: true, exports: 'named' },
     ],
     external: [
