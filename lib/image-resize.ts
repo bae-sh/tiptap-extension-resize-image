@@ -16,7 +16,7 @@ export const imageResizeConfig: Partial<NodeConfig<ImageResizeOptions>> = {
 
   addOptions() {
     return {
-      ...this.parent?.(),
+      ...(this.parent?.() as ImageOptions),
       inline: false,
       minWidth: undefined,
       maxWidth: undefined,

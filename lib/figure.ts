@@ -56,6 +56,7 @@ export const Figure = ImageResize.extend<FigureOptions>({
 
   addOptions() {
     return {
+      ...(this.parent?.() as FigureOptions),
       allowBase64: false,
       HTMLAttributes: {},
       minWidth: undefined,
